@@ -5,6 +5,7 @@ using GameModel;
 using GameModel.Cards;
 using Newtonsoft.Json.Linq;
 using SocketIOSharp.Client;
+using SocketIOSharp.Common.Packet;
 
 Console.WriteLine("Input your name!");
 var name = Console.ReadLine();
@@ -27,7 +28,7 @@ client.Connect();
 client.On("connection", (JToken[] data) =>
 {
     Console.WriteLine("Connected");
-    client.Emit("joinRoom", name, roomName, roomSize);
+    client.Emit("joinRoom", new JoinRoomMessage() { PlayerName = name, RoomName = roomName, RoomSize = roomSize});
 });
 
 client.On("disconnect", (JToken[] data) =>
@@ -40,7 +41,10 @@ client.On("error", (JToken[] data) =>
     Console.WriteLine("Connected" + " " + data);
 });
 
+client.On("exception", (data) => Console.WriteLine(data[0]["Message"]));
+
 client.On("playTurn", PlayTurn);
+client.On("clarificatePlay", ClarificatePlay);
 
 
 while (true)
@@ -64,47 +68,58 @@ void PlayTurn(JToken[] data)
 
 async Task PlayTurnAsync(GameStateDto game)
 {
-    try
+    DisplayGameState(game);
+
+    bool turnEnd = false;
+    while (!turnEnd)
     {
-        DisplayGameState(game);
+        Console.WriteLine("Input command (play -> p [args], buy -> b [args]):");
+        using var inputReader = new StreamReader(Console.OpenStandardInput(), Console.InputEncoding);
 
-        bool turnEnd = false;
-        while (!turnEnd)
+        var input = await inputReader.ReadLineAsync();
+
+        var args = input.Split(" ");
+
+        var command = args[0];
+
+        var argsList = args.Skip(1).Select(a => Enum.Parse<CardEnum>(a)).ToList();
+
+        if (command == "p")
         {
-            Console.WriteLine("Input command (play -> p [args], buy -> b [args]):");
-            using var inputReader = new StreamReader(Console.OpenStandardInput(), Console.InputEncoding);
-
-            var input = await inputReader.ReadLineAsync();
-
-            var args = input.Split(" ");
-
-            var command = args[0];
-
-            var argsList = args.Skip(1).Select(a => Enum.Parse<CardEnum>(a)).ToList();
-
-            if (command == "p")
+            var message = new PlayCardMessage()
             {
-                var message = new PlayCardMessage()
-                {
-                    PlayedCard = argsList[0],
-                    Args = argsList.Skip(1).ToArray()
-                };
-                var gameStateData = await client.Ask("playCard", message);
+                PlayedCard = argsList[0],
+                Args = argsList.Skip(1).ToArray()
+            };
+            var gameStateData = await client.AskAsync("playCard", message);
+
+            if(gameStateData.Length != 0)
+            {
                 game = Deserialise<GameStateDto>(gameStateData);
 
                 DisplayGameState(game);
             }
-
-            if (command == "b")
-            {
-                var message = new BuyMessage()
-                {
-                    Args = args.Skip(1).Select(a => Enum.Parse<CardEnum>(a)).ToArray()
-                };
-                client.Emit("buyCards", message, () => { });
-                turnEnd = true;
-            }
         }
+
+        if (command == "b")
+        {
+            var message = new BuyMessage()
+            {
+                Args = args.Skip(1).Select(a => Enum.Parse<CardEnum>(a)).ToArray()
+            };
+            client.Emit("buyCards", message, () => { });
+            turnEnd = true;
+        }
+    }
+}
+
+void ClarificatePlay(SocketIOAckEvent askEvent)
+{
+    try
+    {
+        var clarificationRequest = Deserialise<ClarificationRequestMessage>(askEvent.Data);
+
+        ClarificatePlayAsync(clarificationRequest, askEvent.Callback);
     }
     catch (Exception e)
     {
@@ -112,10 +127,31 @@ async Task PlayTurnAsync(GameStateDto game)
     }
 }
 
+async Task ClarificatePlayAsync(ClarificationRequestMessage clarificationRequest, Action<JToken[]> callback)
+{
+    Console.WriteLine($"clarificate play card: {clarificationRequest.PlayedCard}");
+    Console.WriteLine($"Args: {string.Join(", ", clarificationRequest.Args.Select(c => $"{c}-{(int)c}"))}");
+    using var inputReader = new StreamReader(Console.OpenStandardInput(), Console.InputEncoding);
+
+    var input = await inputReader.ReadLineAsync();
+
+    var args = input!.Split(" ");
+
+    var argsList = args.Select(a => Enum.Parse<CardEnum>(a)).ToArray();
+
+    var response = new ClarificationResponseMessage() { Args = argsList };
+
+    callback.Invoke(new JToken[] { JToken.FromObject(response) });
+}
+
 void DisplayGameState(GameStateDto game)
 {
     DisplayKingdomState(game.Kingdom);
+
+    Console.WriteLine($"Turn: {game.Turn}\n");
+
     DisplayPlayerState(game.PlayerState);
+
 }
 
 void DisplayKingdomState(Kingdom kingdom)
@@ -123,16 +159,17 @@ void DisplayKingdomState(Kingdom kingdom)
     Console.WriteLine($"Kingdom:\n");
     foreach (var pile in kingdom.Piles)
     {
-        Console.WriteLine($"{pile.Key}-{(int)pile.Key}   Count: {pile.Value.Count}");
+        Console.WriteLine($"{pile.Key}-{(int)pile.Key}   Count: {pile.Value.Count}  Cost: {pile.Value.Cost}");
     }
     Console.WriteLine($"\n");
 }
 
-void DisplayPlayerState(PlayerState player)
+void DisplayPlayerState(CurrentPlayerStateDto player)
 {
     Console.WriteLine($"Hand:\n");
     Console.WriteLine(string.Join(", ", player.Hand.Select(c => $"{c.Name}-{(int)c.CardTypeId}")));
-    Console.WriteLine($"\n");
+    Console.WriteLine();
+    Console.WriteLine($"Money: {player.TotalMoney}\n");
 }
 
 T Deserialise<T>(JToken[] data)

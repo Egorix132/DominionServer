@@ -1,4 +1,4 @@
-﻿using System.Text.Json.Serialization;
+﻿using GameModel.Cards;
 
 namespace GameModel
 {
@@ -11,5 +11,9 @@ namespace GameModel
         PlayerState State { get; }
 
         Task PlayTurn(Game game);
+
+        Task<ClarificationResponseMessage> ClarificatePlayAsync(CardEnum playedCard, CardEnum[] args);
+
+        void GameStopped();
     }
 }

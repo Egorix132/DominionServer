@@ -2,7 +2,7 @@
 
 namespace GameModel;
 
-public class PlayCardMessage : BaseMessage
+public class ClarificationRequestMessage : BaseMessage
 {
     public CardEnum PlayedCard { get; set; }
 }

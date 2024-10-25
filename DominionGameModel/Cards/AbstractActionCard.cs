@@ -2,19 +2,19 @@
 {
     public abstract class AbstractActionCard : AbstractCard, IActionCard
     {
-        public bool TryAct(Game game, IPlayer player, PlayCardMessage playMessage)
+        public async Task<bool> TryAct(Game game, IPlayer player, PlayCardMessage playMessage)
         {
             if (!CanAct(game, player, playMessage))
             {
                 return false;
             }
 
-            player.State.DrawToHand(2);
+            await Act(game, player, playMessage);
 
             return true;
         }
 
-        protected abstract void Act(Game game, IPlayer player, PlayCardMessage playMessage);
+        protected abstract Task Act(Game game, IPlayer player, PlayCardMessage playMessage);
 
         public virtual bool CanAct(Game game, IPlayer player, PlayCardMessage playMessage)
         {

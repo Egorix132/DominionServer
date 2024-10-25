@@ -2,10 +2,10 @@
 
 namespace GameModel.Infrastructure.Exceptions
 {
-    public class MissedCardsInHandException : Exception
+    public class MissingCardsInHandException : Exception
     {
         public CardEnum[] CardEnum { get; set; }
-        public MissedCardsInHandException(params CardEnum[] cardEnum) : base(string.Join(", ", cardEnum))
+        public MissingCardsInHandException(params CardEnum[] cardEnum) : base("Missing cards: " + string.Join(", ", cardEnum))
         {
             CardEnum = cardEnum;
         }

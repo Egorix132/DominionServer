@@ -1,5 +1,6 @@
 ﻿using Dominion.SocketIoServer.Dtos;
 using GameModel;
+using GameModel.Cards;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using SocketIOSharp.Common.Packet;
@@ -8,49 +9,38 @@ namespace Dominion.SocketIoServer
 {
     public class WebSocketPlayer : IPlayer
     {
-        public WebSocketPlayer()
-        {
-
-        }
         private SocketIoClient _socket;
 
-        public WebSocketPlayer(SocketIoClient socket)
+        public WebSocketPlayer(SocketIoClient socket, string name)
         {
-            Id = Guid.NewGuid().ToString();
             _socket = socket;
+            Name = name;
+            State = new PlayerState();
         }
 
-        [JsonIgnore]
-        public string Id { get; init; }
+        public string Id => _socket.Id.ToString();
 
         public string Name { get; init; }
 
-        [JsonIgnore]
         public PlayerState State { get; init; }
 
-        [JsonIgnore]
         private Game Game { get; set; }
 
-        [JsonIgnore]
-        private TaskCompletionSource Task { get; set; }
+        private TaskCompletionSource TurnTask { get; set; }
 
         public async Task PlayTurn(Game game)
         {
             try
             {
                 Game = game;
-                Task = new TaskCompletionSource();
-                _socket.ListenToAsk("playCard", PlayCard);
-                _socket.ListenToAsk("canPlayCard", CanPlayCard);
-                _socket.ListenToMessage("buyCards", BuyCard);
+                TurnTask = new TaskCompletionSource();
+                Subscribe();
 
                 _socket.SendMessage("playTurn", new GameStateDto(Game));
 
-                await Task.Task;
+                await TurnTask.Task;
 
-                _socket.OffAsk("playCard", PlayCard);
-                _socket.OffAsk("canPlayCard", CanPlayCard);
-                _socket.OffMessage("buyCards", BuyCard);
+                Unsubscribe();
             }
             catch(Exception ex)
             {
@@ -58,7 +48,26 @@ namespace Dominion.SocketIoServer
             }
         }
 
+        private void Subscribe()
+        {
+            _socket.ListenToAsk("playCard", PlayCard);
+            _socket.ListenToAsk("canPlayCard", CanPlayCard);
+            _socket.ListenToMessage("buyCards", BuyCard);
+        }
+
+        private void Unsubscribe()
+        {
+            _socket.OffAsk("playCard", PlayCard);
+            _socket.OffAsk("canPlayCard", CanPlayCard);
+            _socket.OffMessage("buyCards", BuyCard);
+        }
+
         public void PlayCard(SocketIOAckEvent ackEvent)
+        {
+            PlayCardAsync(ackEvent);
+        }
+
+        public async Task PlayCardAsync(SocketIOAckEvent ackEvent)
         {
             try
             {
@@ -67,13 +76,15 @@ namespace Dominion.SocketIoServer
                     throw new ArgumentException("BadRequest");
                 }
 
-                State.PlayCard(Game, playCardMessage, this);
+                await State.PlayCard(Game, playCardMessage!, this);
 
                 ackEvent.Callback(new JToken[] { JToken.FromObject(new GameStateDto(Game), JsonSerializer.Create(new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.Auto })) });
             }
             catch (Exception e)
             {
-                _socket.SendMessage("exception", e);
+                Console.WriteLine(e.ToString());
+                _socket.SendMessage("exception", e.Message);
+                ackEvent.Callback(Array.Empty<JToken>());
             }
         }
 
@@ -86,12 +97,16 @@ namespace Dominion.SocketIoServer
                     throw new ArgumentException("BadRequest");
                 }
 
-                State.BuyCards(Game, buyMessage, this);
-                Task.SetResult();
+                State.BuyCards(Game, buyMessage!, this);
             }
             catch (Exception e)
             {
-                _socket.SendMessage("exception", e);
+                Console.WriteLine(e.ToString());
+                _socket.SendMessage("exception", e.Message);
+            }
+            finally
+            {
+                TurnTask.SetResult();
             }
         }
 
@@ -107,7 +122,7 @@ namespace Dominion.SocketIoServer
                 JToken? resultToken = null;
                 try
                 {
-                    var canPlayCard = State.CanPlayCard(Game, playCardMessage, this);
+                    var canPlayCard = State.CanPlayCard(Game, playCardMessage!, this);
                     resultToken = JToken.FromObject(canPlayCard);
                 }
                 catch (Exception)
@@ -120,7 +135,42 @@ namespace Dominion.SocketIoServer
             catch (Exception e)
             {
                 _socket.SendMessage("exception", e);
+                ackEvent.Callback(Array.Empty<JToken>());
             }
+        }
+
+        public async Task<ClarificationResponseMessage> ClarificatePlayAsync(CardEnum playedCard, CardEnum[] args)
+        {
+            Unsubscribe();
+
+            ClarificationResponseMessage playClarificationResponse = null;
+            try
+            {
+                var response
+                                = await _socket.AskAsync($"clarificatePlay", new ClarificationRequestMessage() { PlayedCard = playedCard, Args = args });
+
+                if (response.Length < 1 || !response[0].TryDeserializeObject<ClarificationResponseMessage>(out playClarificationResponse))
+                {
+                    throw new ArgumentException("BadRequest");
+                }
+            }
+            catch
+            {
+                throw;
+            }
+            finally
+            {
+                Subscribe();
+            }
+
+            return playClarificationResponse;
+        }
+
+        public void GameStopped()
+        {
+            Unsubscribe();
+
+            _socket.SendMessage("stopGame", new GameStateDto(Game));
         }
     }
 }

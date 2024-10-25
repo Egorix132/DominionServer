@@ -14,29 +14,46 @@ namespace GameModel.Cards.IndividualCards
 
         public override List<CardType> Types { get; } = new List<CardType> { CardType.Action };
 
-        protected override void Act(Game game, IPlayer player, PlayCardMessage playMessage)
+        protected override async Task Act(Game game, IPlayer player, PlayCardMessage playMessage)
         {
-            player.State.DrawToHand(1);
-            player.State.ActionsCount++;
-            player.State.AdditionalMoney++;
-        }
-
-        public override bool CanAct(Game game, IPlayer player, PlayCardMessage playMessage)
-        {
-            var emptyPilesCount = game.Kingdom.Piles.Where(p => p.Value.IsEmpty()).Count();
-            if (playMessage.Args.Count() < emptyPilesCount)
+            var drawedCard = player.State.DrawToHand(1);
+            try
             {
-                throw new BaseDominionException(ExceptionsEnum.MissingArguments);
-            }
+                var emptyPilesCount = game.Kingdom.Piles.Where(p => p.Value.IsEmpty()).Count();
 
-            if (!player.State.HaveInHand(playMessage.Args))
-            {
-                throw new MissedCardsInHandException(playMessage.Args
-                    .GroupBy(t => t)
-                    .Where(group => player.State.Hand.Where(c => c.CardTypeId == group.FirstOrDefault()).Count() < group.Count())
-                    .Select(g => g.FirstOrDefault()).ToArray());
+                if (emptyPilesCount == 0)
+                {
+                    player.State.ActionsCount++;
+                    player.State.AdditionalMoney++;
+
+                    return;
+                }
+
+                var clarification = await player.ClarificatePlayAsync(
+                    playMessage.PlayedCard,
+                    player.State.Hand.Select(c => c.CardTypeId).ToArray());
+
+                if (clarification.Args.Length < emptyPilesCount
+                    && emptyPilesCount <= player.State.Hand.Count)
+                {
+                    throw new BaseDominionException(ExceptionsEnum.MissingArguments);
+                }
+                if (!player.State.DiscardFromHand(DiscardType.LastToPublic, clarification.Args))
+                {
+                    throw new MissingCardsInHandException(clarification.Args
+                        .GroupBy(t => t)
+                        .Where(group => player.State.Hand.Where(c => c.CardTypeId == group.FirstOrDefault()).Count() < group.Count())
+                        .Select(g => g.FirstOrDefault()).ToArray());
+                }
+
+                player.State.ActionsCount++;
+                player.State.AdditionalMoney++;
             }
-            return true;
+            catch
+            {
+                player.State.OnDeckFromHand(drawedCard.First().CardTypeId);
+                throw;
+            }
         }
     }
 }

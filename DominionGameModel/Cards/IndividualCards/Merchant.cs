@@ -12,16 +12,11 @@
 
         public override List<CardType> Types { get; } = new List<CardType> { CardType.Action };
 
-        protected override void Act(Game game, IPlayer player, PlayCardMessage playMessage)
+        protected override async Task Act(Game game, IPlayer player, PlayCardMessage playMessage)
         {
             player.State.DrawToHand(1);
             player.State.ActionsCount++;
             player.State.AdditionalMoney++;
-        }
-
-        public override bool CanAct(Game game, IPlayer player, PlayCardMessage playMessage)
-        {
-            return true;
         }
     }
 }

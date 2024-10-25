@@ -11,7 +11,6 @@ namespace Dominion.SocketIoServer.Dtos
         public int TotalMoney { get; set; } = 0;
 
         public List<AbstractCard> AllCards { get; set; } = new();
-        public List<AbstractCard> Hand = new();
         public List<AbstractCard> OnPlay = new();
         public List<AbstractCard> PublicDiscard = new();
 

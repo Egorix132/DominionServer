@@ -16,7 +16,7 @@ namespace GameModel.Cards.IndividualCards
 
         public override List<CardType> Types { get; } = new List<CardType> { CardType.Action };
 
-        protected override void Act(Game game, IPlayer player, PlayCardMessage playMessage)
+        protected override async Task Act(Game game, IPlayer player, PlayCardMessage playMessage)
         {
             var trashCardType = playMessage.Args[0];
             var getCardType = playMessage.Args[1];
@@ -53,7 +53,7 @@ namespace GameModel.Cards.IndividualCards
 
             if (!player.State.HaveInHand(trashCardType))
             {
-                throw new MissedCardsInHandException(trashCardType);
+                throw new MissingCardsInHandException(trashCardType);
             }
 
             return true;

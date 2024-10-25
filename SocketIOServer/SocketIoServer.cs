@@ -1,4 +1,5 @@
-﻿using GameModel;
+﻿using Dominion.SocketIoServer.Dtos;
+using GameModel;
 using GameModel.Cards;
 using SocketIOSharp.Common;
 using SocketIOSharp.Server;
@@ -23,22 +24,15 @@ public class Server
             {
                 try
                 {
-                    string playerName = data[0].ToString();
-                    string roomName = data[1].ToString();
-                    int? roomSize = null;
-
-                    if(data.Length > 2)
+                    if (data.Length < 1 || !data[0].TryDeserializeObject<JoinRoomMessage>(out var joinRoomMessage))
                     {
-                        if (int.TryParse(data[2].ToString(), out var roomSizeParsed))
-                        {
-                            roomSize = roomSizeParsed;
-                        }
+                        throw new ArgumentException("BadRequest");
                     }
 
                     RoomService.JoinRoom(
-                        roomName, 
-                        new WebSocketPlayer(client) { Name = playerName, State = new PlayerState() },
-                        roomSize);     
+                        joinRoomMessage!.RoomName, 
+                        new WebSocketPlayer(client, joinRoomMessage.PlayerName),
+                        joinRoomMessage.RoomSize);     
                 }
                 catch (Exception ex)
                 {
@@ -47,6 +41,7 @@ public class Server
             });
             socket.On(SocketIOEvent.DISCONNECT, () =>
             {
+                RoomService.DisconnectFromRooms(client.Id.ToString());
                 client.Dispose();
             });
                 

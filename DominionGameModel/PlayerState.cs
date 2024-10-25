@@ -83,7 +83,7 @@ namespace GameModel
             return drawedCards;
         }
 
-        public void PlayCard(Game game, PlayCardMessage playCardMessage, IPlayer player)
+        public async Task PlayCard(Game game, PlayCardMessage playCardMessage, IPlayer player)
         {
             if (game.CurrentPlayer.Id != player.Id)
             {
@@ -98,7 +98,7 @@ namespace GameModel
             var cardInHand = Hand.FirstOrDefault(c => c.CardTypeId == playCardMessage.PlayedCard);
             if (cardInHand == null || cardInHand is not IActionCard actionCard)
             {
-                throw new MissedCardsInHandException(playCardMessage.PlayedCard);
+                throw new MissingCardsInHandException(playCardMessage.PlayedCard);
             }
 
             OnPlay.Add(cardInHand);
@@ -106,7 +106,7 @@ namespace GameModel
 
             try
             {
-                var isPlayed = actionCard.TryAct(game, player, playCardMessage);
+                var isPlayed = await actionCard.TryAct(game, player, playCardMessage);
                 ActionsCount--;
             }
             catch (Exception)
@@ -132,7 +132,7 @@ namespace GameModel
             var cardInHand = Hand.FirstOrDefault(c => c.CardTypeId == playCardMessage.PlayedCard);
             if (cardInHand == null || cardInHand is not IActionCard actionCard)
             {
-                throw new MissedCardsInHandException(playCardMessage.PlayedCard);
+                throw new MissingCardsInHandException(playCardMessage.PlayedCard);
             }
 
             OnPlay.Add(cardInHand);
@@ -275,6 +275,7 @@ namespace GameModel
 
                 kingdom.Trash.Add(discardedCard!);
                 Hand.Remove(discardedCard!);
+                AllCards.Remove(discardedCard!);
             }
             return true;
         }
@@ -287,7 +288,7 @@ namespace GameModel
                 return false;
             }
 
-            Deck.Add(discardedCard);
+            Deck.Prepend(discardedCard);
             Hand.Remove(discardedCard);
 
             return true;

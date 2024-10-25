@@ -8,7 +8,7 @@ internal class Room
     public string Name { get; set; }
     public int Size { get; set; } = 2;
 
-    public bool isGameStarted = false;
+    public Game? Game = null;
 
     public List<IPlayer> Players { get; set; } = new();
 
@@ -20,7 +20,7 @@ internal class Room
 
     public bool Join(IPlayer player)
     {
-        if(isGameStarted || Players.Count >= Size)
+        if(Game != null || Players.Count >= Size)
         {
             return false;
         }
@@ -29,8 +29,20 @@ internal class Room
 
         if(Players.Count == Size)
         {
-            isGameStarted = true;
             StartGame();
+        }
+
+        return true;
+    }
+
+    public bool Disconnect(string id)
+    {
+        Players.RemoveAll(player => player.Id == id);
+        if (Game != null)
+        {
+            Game.Players.RemoveAll(player => player.Id == id);
+            Game.Dispose();
+            Game = null;
         }
 
         return true;
@@ -38,7 +50,7 @@ internal class Room
 
     public void StartGame()
     {
-        var newGame = new Game(
+        Game = new Game(
                         Players,
                         new Kingdom(
                             new List<CardEnum> {
@@ -48,6 +60,6 @@ internal class Room
                             Players.Count
                         )
                     );
-        newGame.StartGame();
+        Game.StartGame();
     }
 }

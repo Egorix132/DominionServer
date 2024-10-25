@@ -17,7 +17,15 @@ namespace GameModel
 
             Piles.Add(CardEnum.Estate, new Pile(CardEnum.Estate, playerCount < 3 ? 8 : 12));
             Piles.Add(CardEnum.Duchy, new Pile(CardEnum.Duchy, playerCount < 3 ? 8 : 12));
-            Piles.Add(CardEnum.Province, new Pile(CardEnum.Province, playerCount < 3 ? 8 : 12));
+            int provinceCount = 8;
+            if(playerCount > 2) {
+                provinceCount += 4;
+            }
+            if(playerCount > 4)
+            {
+                provinceCount += (playerCount - 4) * 3;
+            }
+            Piles.Add(CardEnum.Province, new Pile(CardEnum.Province, provinceCount));
 
             Piles.Add(CardEnum.Curse, new Pile(CardEnum.Curse, (playerCount - 1) * 10));
 

@@ -1,6 +1,5 @@
-﻿namespace GameModel
+﻿namespace GameModel;
+
+public class BuyMessage : BaseMessage
 {
-    public class BuyMessage : BaseMessage
-    {
-    }
 }

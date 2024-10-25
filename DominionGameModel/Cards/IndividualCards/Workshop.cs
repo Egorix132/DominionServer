@@ -1,25 +1,24 @@
 ﻿namespace GameModel.Cards.IndividualCards
 {
-    public class WorkshopCard : IActionCard
+    public class WorkshopCard : AbstractActionCard
     {
-        public string Name { get; set; } = "Workshop";
+        public override string Name { get; } = "Workshop";
 
-        public int Cost { get; set; } = 4;
+        public override int Cost { get; } = 4;
 
-        public string Text { get; set; } = "Gain a card costing up to $4.";
+        public override string Text { get; } = "Gain a card costing up to $4.";
 
-        public CardEnum CardTypeId { get; set; } = CardEnum.Workshop;
+        public override CardEnum CardTypeId { get; } = CardEnum.Workshop;
 
-        public List<CardType> Types { get; set; } = new List<CardType> { CardType.Action };
+        public override List<CardType> Types { get; } = new List<CardType> { CardType.Action };
 
-        public bool CanAct(Game game, IPlayer player, PlayCardMessage playMessage)
+        public override bool CanAct(Game game, IPlayer player, PlayCardMessage playMessage)
         {
             throw new NotImplementedException();
         }
 
-        public bool TryAct(Game game, IPlayer player, PlayCardMessage playMessage)
+        protected override async Task Act(Game game, IPlayer player, PlayCardMessage playMessage)
         {
-            return true;
         }
     }
 }

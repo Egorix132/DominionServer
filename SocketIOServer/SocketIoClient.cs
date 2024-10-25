@@ -45,6 +45,10 @@ public class SocketIoClient
     {
         _socket.Emit(endpoint, data);
     }
+    public async Task<JToken[]> AskAsync(string endpoint, params object?[] data)
+    {
+        return await _socket.AskAsync(endpoint, data);
+    }
 
     public void ListenToMessage(string endpoint, Action<JToken[]> listener)
     {

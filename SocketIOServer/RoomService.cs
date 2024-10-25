@@ -1,4 +1,5 @@
 ﻿using GameModel;
+using System.Numerics;
 
 namespace Dominion.SocketIoServer
 {
@@ -17,6 +18,22 @@ namespace Dominion.SocketIoServer
             }
 
             return room.Join(player);
+        }
+
+        public static bool DisconnectFromRooms(string id)
+        {
+            var roomsForDisconnect = RoomList.Values.Where(r => r.Players.Any(p => p.Id == id));
+            if (!roomsForDisconnect.Any())
+            {
+                return false;
+            }
+
+            foreach (var room in roomsForDisconnect)
+            {
+                room.Disconnect(id);
+            }
+
+            return true;
         }
     }
 }

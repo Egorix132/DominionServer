@@ -32,7 +32,7 @@ namespace SocketIOSharp.Common.Abstract
             return Emit(Event, Arguments(Callback));
         }
 
-        public async Task<JToken[]> Ask(JToken Event, params object[] args)
+        public async Task<JToken[]> AskAsync(JToken Event, params object[] args)
         {
             var promise = new TaskCompletionSource<JToken[]>();
             Action<JToken[]> callback = (JToken[] returnData) => {
@@ -44,7 +44,7 @@ namespace SocketIOSharp.Common.Abstract
 
             Emit(Event, argsList.ToArray());
 
-            return await promise.Task;
+            return await promise.Task.ConfigureAwait(false);
         }
 
         public TChildClass Emit(JToken Event, JToken Data, Action<JToken[]> Callback = null)

@@ -14,7 +14,7 @@ namespace GameModel.Cards.IndividualCards
 
         public override List<CardType> Types { get; } = new List<CardType> { CardType.Action, CardType.Reaction };
 
-        protected override void Act(Game game, IPlayer player, PlayCardMessage playMessage)
+        protected override async Task Act(Game game, IPlayer player, PlayCardMessage playMessage)
         {
             player.State.TrashFromHand(game.Kingdom, CardEnum.Copper);
 
@@ -25,7 +25,7 @@ namespace GameModel.Cards.IndividualCards
         {
             if (!player.State.HaveInHand(CardEnum.Copper))
             {
-                throw new MissedCardsInHandException(CardEnum.Copper);
+                throw new MissingCardsInHandException(CardEnum.Copper);
             }
             return true;
         }

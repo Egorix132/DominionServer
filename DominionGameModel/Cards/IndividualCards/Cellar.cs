@@ -14,18 +14,20 @@ namespace GameModel.Cards.IndividualCards
 
         public override List<CardType> Types { get; } = new List<CardType> { CardType.Action };
 
-        protected override void Act(Game game, IPlayer player, PlayCardMessage playMessage)
+        protected override async Task Act(Game game, IPlayer player, PlayCardMessage playMessage)
         {
             player.State.DiscardFromHand(DiscardType.LastToPublic, playMessage.Args);
 
             player.State.DrawToHand(playMessage.Args.Length);
+
+            player.State.ActionsCount++;
         }
 
         public override bool CanAct(Game game, IPlayer player, PlayCardMessage playMessage)
         {
             if (!player.State.HaveInHand(playMessage.Args))
             {
-                throw new MissedCardsInHandException(playMessage.Args
+                throw new MissingCardsInHandException(playMessage.Args
                     .GroupBy(t => t)
                     .Where(group => player.State.Hand.Where(c => c.CardTypeId == group.FirstOrDefault()).Count() < group.Count())
                     .Select(g => g.FirstOrDefault()).ToArray());
