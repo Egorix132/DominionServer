@@ -76,8 +76,9 @@ namespace Dominion.SocketIoServer
                     throw new ArgumentException("BadRequest");
                 }
 
-                await State.PlayCard(Game, playCardMessage!, this);
+                await State.PlayCard(Game, this, playCardMessage!);
 
+                Game.AddLog(this, playCardMessage!);
                 ackEvent.Callback(new JToken[] { JToken.FromObject(new GameStateDto(Game), JsonSerializer.Create(new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.Auto })) });
             }
             catch (Exception e)
@@ -98,6 +99,7 @@ namespace Dominion.SocketIoServer
                 }
 
                 State.BuyCards(Game, buyMessage!, this);
+                Game.AddLog(this, buyMessage!);
             }
             catch (Exception e)
             {
@@ -139,17 +141,18 @@ namespace Dominion.SocketIoServer
             }
         }
 
-        public async Task<ClarificationResponseMessage> ClarificatePlayAsync(CardEnum playedCard, CardEnum[] args)
+        public async Task<ClarificationResponseMessage> ClarificatePlayAsync(ClarificationRequestMessage request)
         {
             Unsubscribe();
 
             ClarificationResponseMessage playClarificationResponse = null;
             try
             {
-                var response
-                                = await _socket.AskAsync($"clarificatePlay", new ClarificationRequestMessage() { PlayedCard = playedCard, Args = args });
+                var response = await _socket.AskAsync(
+                    $"clarificatePlay",
+                    request);
 
-                if (response.Length < 1 || !response[0].TryDeserializeObject<ClarificationResponseMessage>(out playClarificationResponse))
+                if (response.Length < 1 || !response[0].TryDeserializeObject(out playClarificationResponse))
                 {
                     throw new ArgumentException("BadRequest");
                 }
@@ -166,11 +169,11 @@ namespace Dominion.SocketIoServer
             return playClarificationResponse;
         }
 
-        public void GameStopped()
+        public void GameEnded(GameEndDto gameEndDto)
         {
             Unsubscribe();
 
-            _socket.SendMessage("stopGame", new GameStateDto(Game));
+            _socket.SendMessage("endGame", gameEndDto);
         }
     }
 }

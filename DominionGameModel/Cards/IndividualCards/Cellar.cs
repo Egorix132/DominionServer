@@ -1,39 +1,38 @@
 ﻿using GameModel.Infrastructure.Exceptions;
 
-namespace GameModel.Cards.IndividualCards
+namespace GameModel.Cards.IndividualCards;
+
+public class CellarCard : AbstractActionCard
 {
-    public class CellarCard : AbstractActionCard
+    public override string Name { get; } = "Cellar";
+
+    public override int Cost { get; } = 2;
+
+    public override string Text { get; } = "+1 Action\r\nDiscard any number of cards, then draw that many.";
+
+    public override CardEnum CardTypeId { get; } = CardEnum.Cellar;
+
+    public override List<CardType> Types { get; } = new List<CardType> { CardType.Action };
+
+    protected override async Task Act(Game game, IPlayer player, PlayCardMessage playMessage)
     {
-        public override string Name { get; } = "Cellar";
+        player.State.DiscardFromHand(DiscardType.LastToPublic, playMessage.Args);
 
-        public override int Cost { get; } = 2;
+        player.State.DrawToHand(playMessage.Args.Length);
 
-        public override string Text { get; } = "+1 Action\r\nDiscard any number of cards, then draw that many.";
+        player.State.ActionsCount++;
+    }
 
-        public override CardEnum CardTypeId { get; } = CardEnum.Cellar;
-
-        public override List<CardType> Types { get; } = new List<CardType> { CardType.Action };
-
-        protected override async Task Act(Game game, IPlayer player, PlayCardMessage playMessage)
+    public override bool CanAct(Game game, IPlayer player, PlayCardMessage playMessage)
+    {
+        if (!player.State.HaveInHand(playMessage.Args))
         {
-            player.State.DiscardFromHand(DiscardType.LastToPublic, playMessage.Args);
-
-            player.State.DrawToHand(playMessage.Args.Length);
-
-            player.State.ActionsCount++;
+            throw new MissingCardsException(playMessage.Args
+                .GroupBy(t => t)
+                .Where(group => player.State.Hand.Where(c => c.CardTypeId == group.FirstOrDefault()).Count() < group.Count())
+                .Select(g => g.FirstOrDefault()).ToArray());
         }
 
-        public override bool CanAct(Game game, IPlayer player, PlayCardMessage playMessage)
-        {
-            if (!player.State.HaveInHand(playMessage.Args))
-            {
-                throw new MissingCardsInHandException(playMessage.Args
-                    .GroupBy(t => t)
-                    .Where(group => player.State.Hand.Where(c => c.CardTypeId == group.FirstOrDefault()).Count() < group.Count())
-                    .Select(g => g.FirstOrDefault()).ToArray());
-            }
-
-            return true;
-        }
+        return true;
     }
 }

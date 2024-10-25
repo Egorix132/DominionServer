@@ -1,24 +1,50 @@
-﻿namespace GameModel.Cards.IndividualCards
+﻿using GameModel.Infrastructure.Attributes;
+using GameModel.Infrastructure.Exceptions;
+using GameModel.Infrastructure;
+
+namespace GameModel.Cards.IndividualCards;
+
+public class WorkshopCard : AbstractActionCard
 {
-    public class WorkshopCard : AbstractActionCard
+    public override string Name { get; } = "Workshop";
+
+    public override int Cost { get; } = 4;
+
+    public override string Text { get; } = "Gain a card costing up to $4.";
+
+    public override CardEnum CardTypeId { get; } = CardEnum.Workshop;
+
+    public override List<CardType> Types { get; } = new List<CardType> { CardType.Action };
+
+    protected override async Task Act(Game game, IPlayer player, PlayCardMessage playMessage)
     {
-        public override string Name { get; } = "Workshop";
+        var getCardType = playMessage.Args[0];
 
-        public override int Cost { get; } = 4;
+        var gottenCard = game.Kingdom.Piles[getCardType].Pop();
 
-        public override string Text { get; } = "Gain a card costing up to $4.";
+        player.State.AddCardsToDiscard(gottenCard);
+    }
 
-        public override CardEnum CardTypeId { get; } = CardEnum.Workshop;
-
-        public override List<CardType> Types { get; } = new List<CardType> { CardType.Action };
-
-        public override bool CanAct(Game game, IPlayer player, PlayCardMessage playMessage)
+    public override bool CanAct(Game game, IPlayer player, PlayCardMessage playMessage)
+    {
+        if (playMessage.Args.Length < 1)
         {
-            throw new NotImplementedException();
+            throw new BaseDominionException(ExceptionsEnum.MissingArguments);
         }
 
-        protected override async Task Act(Game game, IPlayer player, PlayCardMessage playMessage)
+        var getCardType = playMessage.Args[0];
+
+        if (game.Kingdom.IsPileEmpty(getCardType))
         {
+            throw new PileIsEmptyException(getCardType);
         }
+
+        var getCardCost = getCardType.GetAttribute<CardCostAttribute>()!.CardCost;
+        if (getCardCost > 4)
+        {
+            throw new NotEnoughMoneyException(getCardCost, 5);
+        }
+
+        return true;
     }
 }

@@ -29,7 +29,7 @@ internal class Room
 
         if(Players.Count == Size)
         {
-            StartGame();
+            StartNewGame();
         }
 
         return true;
@@ -48,7 +48,7 @@ internal class Room
         return true;
     }
 
-    public void StartGame()
+    public async Task StartNewGame()
     {
         Game = new Game(
                         Players,
@@ -60,6 +60,11 @@ internal class Room
                             Players.Count
                         )
                     );
-        Game.StartGame();
+        await Game.StartGame();
+
+        if (Players.Count == Size)
+        {
+            StartNewGame();
+        }
     }
 }

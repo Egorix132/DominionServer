@@ -11,11 +11,11 @@ namespace Dominion.SocketIoServer.Dtos
         public int AdditionalMoney { get; set; } = 0;
         public int TotalMoney { get; set; } = 0;
 
-        public List<ICard> AllCards;
-        public List<ICard> Hand;
-        public List<ICard> Deck;
-        public List<ICard> OnPlay;
-        public List<ICard> Discard;
+        public List<CardEnum> AllCards;
+        public List<CardEnum> Hand;
+        public List<CardEnum> Deck;
+        public List<CardEnum> OnPlay;
+        public List<CardEnum> Discard;
 
         public CurrentPlayerStateDto()
         {
@@ -24,11 +24,12 @@ namespace Dominion.SocketIoServer.Dtos
 
         public CurrentPlayerStateDto(PlayerState playerState)
         {
-            AllCards = new List<ICard>(playerState.AllCards);
-            Discard = new List<ICard>(playerState.Discard);
-            OnPlay = new List<ICard>(playerState.OnPlay);
-            Hand = new List<ICard>(playerState.Hand);
-            Deck = new List<ICard>(playerState.Deck);
+            AllCards = playerState.AllCards.Select(c => c.CardTypeId).ToList();
+            Discard = playerState.Discard.Select(c => c.CardTypeId).ToList();
+            OnPlay = playerState.OnPlay.Select(c => c.CardTypeId).ToList();
+            Hand = playerState.Hand.Select(c => c.CardTypeId).ToList();
+            Deck = playerState.Deck.Select(c => c.CardTypeId).ToList();
+
             Deck.Shuffle();
 
             ActionsCount = playerState.ActionsCount;

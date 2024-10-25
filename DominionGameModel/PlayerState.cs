@@ -3,6 +3,7 @@ using GameModel.Cards.IndividualCards;
 using GameModel.Infrastructure;
 using GameModel.Infrastructure.Attributes;
 using GameModel.Infrastructure.Exceptions;
+using System.Linq;
 using System.Text.Json.Serialization;
 
 namespace GameModel
@@ -13,6 +14,7 @@ namespace GameModel
         public int BuyCount { get; set; } = 1;
         public int AdditionalMoney { get; set; } = 0;
         public int TotalMoney => Hand.Where(c => c is ITreasureCard).Cast<ITreasureCard>().Sum(c => c.Money) + AdditionalMoney;
+        public int VictoryPoints => AllCards.Where(c => c is IVictoryCard).Cast<IVictoryCard>().Sum(c => c.GetVictoryPoints(this));
 
         public List<ICard> AllCards { get; set; } = new();
 
@@ -58,7 +60,7 @@ namespace GameModel
             DrawToHand();
         }
 
-        public List<ICard> DrawToHand(int size = 5)
+        public List<ICard> Draw(int size = 5)
         {
             var drawedCards = new List<ICard>();
             for (int i = 0; i < size; i++)
@@ -76,14 +78,20 @@ namespace GameModel
                 }
                 var card = Deck.Pop();
                 drawedCards.Add(card!);
-
-                Hand.Add(card!);
             }
 
             return drawedCards;
         }
 
-        public async Task PlayCard(Game game, PlayCardMessage playCardMessage, IPlayer player)
+        public List<ICard> DrawToHand(int size = 5)
+        {
+            var drawedCards = Draw(size);
+            Hand.AddRange(drawedCards);
+
+            return drawedCards;
+        }
+
+        public async Task PlayCard(Game game, IPlayer player, PlayCardMessage playCardMessage)
         {
             if (game.CurrentPlayer.Id != player.Id)
             {
@@ -98,7 +106,7 @@ namespace GameModel
             var cardInHand = Hand.FirstOrDefault(c => c.CardTypeId == playCardMessage.PlayedCard);
             if (cardInHand == null || cardInHand is not IActionCard actionCard)
             {
-                throw new MissingCardsInHandException(playCardMessage.PlayedCard);
+                throw new MissingCardsException(playCardMessage.PlayedCard);
             }
 
             OnPlay.Add(cardInHand);
@@ -132,7 +140,7 @@ namespace GameModel
             var cardInHand = Hand.FirstOrDefault(c => c.CardTypeId == playCardMessage.PlayedCard);
             if (cardInHand == null || cardInHand is not IActionCard actionCard)
             {
-                throw new MissingCardsInHandException(playCardMessage.PlayedCard);
+                throw new MissingCardsException(playCardMessage.PlayedCard);
             }
 
             OnPlay.Add(cardInHand);
@@ -153,9 +161,34 @@ namespace GameModel
             }
         }
 
-        public void AddCardsToDiscard(params ICard[] cards)
+        public void AddCardsOntoDeck(params ICard[] cards)
         {
             AllCards.AddRange(cards);
+
+            foreach (var card in cards)
+            {
+                Deck = Deck.Prepend(card).ToList();
+            }
+        }
+
+        public void AddCardsToDiscard(params ICard[] cards)
+        {
+            AddCardsToDiscard(cards as IEnumerable<ICard>);
+        }
+
+        public void AddCardsToDiscard(IEnumerable<ICard> cards)
+        {
+            AllCards.AddRange(cards);
+            PublicDiscard.AddRange(cards);
+        }
+
+        public void MoveCardsToDiscard(params ICard[] cards)
+        {
+            MoveCardsToDiscard(cards as IEnumerable<ICard>);
+        }
+
+        public void MoveCardsToDiscard(IEnumerable<ICard> cards)
+        {
             PublicDiscard.AddRange(cards);
         }
 
@@ -216,24 +249,24 @@ namespace GameModel
             }
         }
 
-        public bool DiscardFromHand(DiscardType discardType, params CardEnum[] cards)
+        public bool DiscardFromHand(DiscardType discardType, IEnumerable<CardEnum> cards)
         {
-            if(!HaveInHand(cards))
+            if (!HaveInHand(cards))
             {
                 return false;
             }
 
-            for (int i = 0; i < cards.Length; i++)
+            for (int i = 0; i < cards.Count(); i++)
             {
-                var cardType = cards[i];
+                var cardType = cards.ElementAt(i);
                 var discardedCard = Hand.FirstOrDefault(c => c.CardTypeId == cardType);
 
-                if(discardType == DiscardType.AllToPublic
-                    || discardType == DiscardType.LastToPublic && i == cards.Length - 1)
+                if (discardType == DiscardType.AllToPublic
+                    || discardType == DiscardType.LastToPublic && i == cards.Count() - 1)
                 {
                     PublicDiscard.Add(discardedCard!);
                 }
-                else if(discardType == DiscardType.AllToPrivate)
+                else if (discardType == DiscardType.AllToPrivate)
                 {
                     _privateDiscard.Add(discardedCard!);
                 }
@@ -241,6 +274,11 @@ namespace GameModel
                 Hand.Remove(discardedCard!);
             }
             return true;
+        }
+
+        public bool DiscardFromHand(DiscardType discardType, params CardEnum[] cards)
+        {
+            return DiscardFromHand(discardType, cards as IEnumerable<CardEnum>);
         }
 
         public static bool MoveFromTo(ICollection<ICard> from, ICollection<ICard> to, params CardEnum[] cards)
@@ -261,16 +299,16 @@ namespace GameModel
             return true;
         }
 
-        public bool TrashFromHand(Kingdom kingdom, params CardEnum[] cards)
+        public bool TrashFromHand(Kingdom kingdom, IEnumerable<CardEnum> cards)
         {
             if (cards.GroupBy(t => t).Any(group => Hand.Where(c => c.CardTypeId == group.FirstOrDefault()).Count() < group.Count()))
             {
                 return false;
             }
 
-            for (int i = 0; i < cards.Length; i++)
+            for (int i = 0; i < cards.Count(); i++)
             {
-                var cardType = cards[i];
+                var cardType = cards.ElementAt(i);
                 var discardedCard = Hand.FirstOrDefault(c => c.CardTypeId == cardType);
 
                 kingdom.Trash.Add(discardedCard!);
@@ -279,7 +317,13 @@ namespace GameModel
             }
             return true;
         }
-        public bool OnDeckFromHand(CardEnum type)
+
+
+        public bool TrashFromHand(Kingdom kingdom, params CardEnum[] cards)
+        {
+            return TrashFromHand(kingdom, cards as IEnumerable<CardEnum>);
+        }
+        public bool OnDeckFromHand(CardEnum? type)
         {
             var discardedCard = Hand.FirstOrDefault(c => c.CardTypeId == type);
 
@@ -288,13 +332,35 @@ namespace GameModel
                 return false;
             }
 
-            Deck.Prepend(discardedCard);
+            Deck = Deck.Prepend(discardedCard).ToList();
             Hand.Remove(discardedCard);
 
             return true;
         }
 
+        public bool MoveOnDeck(ICard? card)
+        {
+            if(card == null)
+            {
+                return false;
+            }
+            Deck = Deck.Prepend(card).ToList();
+
+            return true;
+        }
+
         public bool HaveInHand(params CardEnum[] cards)
+        {
+            if (cards.GroupBy(t => t)
+                .Any(group => Hand.Where(c => c.CardTypeId == group.Key).Count() < group.Count()))
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        public bool HaveInHand(IEnumerable<CardEnum> cards)
         {
             if (cards.GroupBy(t => t)
                 .Any(group => Hand.Where(c => c.CardTypeId == group.FirstOrDefault()).Count() < group.Count()))

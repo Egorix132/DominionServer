@@ -2,61 +2,60 @@
 using GameModel.Infrastructure.Attributes;
 using GameModel.Infrastructure.Exceptions;
 
-namespace GameModel.Cards.IndividualCards
+namespace GameModel.Cards.IndividualCards;
+
+public class MineCard : AbstractActionCard
 {
-    public class MineCard : AbstractActionCard
+    public override string Name { get; } = "Mine";
+
+    public override int Cost { get; } = 5;
+
+    public override string Text { get; } = "You may trash a Treasure from your hand. Gain a Treasure to your hand costing up to $3 more than it.";
+
+    public override CardEnum CardTypeId { get; } = CardEnum.Mine;
+
+    public override List<CardType> Types { get; } = new List<CardType> { CardType.Action };
+
+    protected override async Task Act(Game game, IPlayer player, PlayCardMessage playMessage)
     {
-        public override string Name { get; } = "Mine";
+        var trashCardType = playMessage.Args[0];
+        var getCardType = playMessage.Args[1];
 
-        public override int Cost { get; } = 5;
+        player.State.TrashFromHand(game.Kingdom, trashCardType);
 
-        public override string Text { get; } = "You may trash a Treasure from your hand. Gain a Treasure to your hand costing up to $3 more than it.";
+        var gottenCard = game.Kingdom.Piles[getCardType].Pop();
 
-        public override CardEnum CardTypeId { get; } = CardEnum.Mine;
+        player.State.AddCardsToHand(gottenCard);
+    }
 
-        public override List<CardType> Types { get; } = new List<CardType> { CardType.Action };
-
-        protected override async Task Act(Game game, IPlayer player, PlayCardMessage playMessage)
+    public override bool CanAct(Game game, IPlayer player, PlayCardMessage playMessage)
+    {
+        if (playMessage.Args.Length < 2)
         {
-            var trashCardType = playMessage.Args[0];
-            var getCardType = playMessage.Args[1];
-
-            player.State.TrashFromHand(game.Kingdom, trashCardType);
-
-            var gottenCard = game.Kingdom.Piles[getCardType].Pop();
-
-            player.State.AddCardsToHand(gottenCard);
+            throw new BaseDominionException(ExceptionsEnum.MissingArguments);
         }
 
-        public override bool CanAct(Game game, IPlayer player, PlayCardMessage playMessage)
+        var trashCardType = playMessage.Args[0];
+        var getCardType = playMessage.Args[1];
+
+        if (game.Kingdom.IsPileEmpty(getCardType))
         {
-            if (playMessage.Args.Length < 2)
-            {
-                throw new BaseDominionException(ExceptionsEnum.MissingArguments);
-            }
-
-            var trashCardType = playMessage.Args[0];
-            var getCardType = playMessage.Args[1];
-
-            if (game.Kingdom.IsPileEmpty(getCardType))
-            {
-                throw new PileIsEmptyException(getCardType);
-            }
-
-            if (getCardType.GetAttribute<CardTypesAttribute>()!.CardTypes.All(t => t != CardType.Treasure)
-                || trashCardType.GetAttribute<CardTypesAttribute>()!.CardTypes.All(t => t != CardType.Treasure)
-                || (getCardType.GetAttribute<CardCostAttribute>()!.CardCost
-                > trashCardType.GetAttribute<CardCostAttribute>()!.CardCost + 3))
-            {
-                throw new ArgumentException($"{trashCardType}, {getCardType}");
-            }
-
-            if (!player.State.HaveInHand(trashCardType))
-            {
-                throw new MissingCardsInHandException(trashCardType);
-            }
-
-            return true;
+            throw new PileIsEmptyException(getCardType);
         }
+
+        if (getCardType.GetAttribute<CardTypesAttribute>()!.CardTypes.All(t => t != CardType.Treasure)
+            || trashCardType.GetAttribute<CardTypesAttribute>()!.CardTypes.All(t => t != CardType.Treasure)
+            || (getCardType.GetAttribute<CardCostAttribute>()!.CardCost
+            > trashCardType.GetAttribute<CardCostAttribute>()!.CardCost + 3))
+        {
+            throw new ArgumentException($"{trashCardType}, {getCardType}");
+        }
+
+        if (!player.State.HaveInHand(trashCardType))
+        {
+            throw new MissingCardsException(trashCardType);
+        }
+
+        return true;
     }
 }

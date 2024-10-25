@@ -1,6 +1,4 @@
 ﻿using GameModel.Infrastructure;
-using System.Net.Sockets;
-using System.Text.Json.Serialization;
 
 namespace GameModel
 {
@@ -15,6 +13,7 @@ namespace GameModel
         public IPlayer CurrentPlayer { get; private set; }
 
         public int Turn { get; private set; }
+        public List<LogEntry> Logs { get; private set; } = new();
 
         public Game(List<IPlayer> players, Kingdom kingdom)
         {
@@ -35,8 +34,8 @@ namespace GameModel
         {
             Turn = 0;
             int playerTurnCounter = 0;
-            bool isGameOver = false;
-            while (!isGameOver)
+            GameEndType? gameEndType = null;
+            while (gameEndType == null)
             {
                 if (playerTurnCounter % Players.Count == 0)
                 {
@@ -47,8 +46,18 @@ namespace GameModel
 
                 CurrentPlayer.State.EndTurn();
 
-                isGameOver = Kingdom.IsGameOver();
+                gameEndType = Kingdom.IsGameOver();
                 playerTurnCounter++;
+            }
+
+            EndGame(gameEndType.Value);
+        }
+
+        private void EndGame(GameEndType gameEndType)
+        {
+            foreach (var player in Players)
+            {
+                player.GameEnded(GetGameResult(gameEndType));
             }
         }
 
@@ -56,8 +65,38 @@ namespace GameModel
         {
             foreach (var player in Players)
             {
-                player.GameStopped();
+                player.GameEnded(GetGameResult(GameEndType.Error));
             }
+        }
+
+        private GameEndDto GetGameResult(GameEndType gameEndType)
+        {
+            var gameEndDto = new GameEndDto();
+            gameEndDto.GameEndType = gameEndType;
+            gameEndDto.Turn = Turn;
+            gameEndDto.Players = Players
+                .OrderBy(p => p.State.VictoryPoints)
+                .Select((p, i) => new PlayerVictoryDto()
+                {
+                    Name = p.Name,
+                    Place = i + 1,
+                    VictoryPoints = p.State.VictoryPoints
+                })
+                .ToList();
+            gameEndDto.WinnerName = Players[0].Name;
+
+            return gameEndDto;
+        }
+
+        public void AddLog(IPlayer player, BaseMessage message)
+        {
+            Logs.Add(new LogEntry()
+            {
+                Turn = Turn,
+                PlayerName = player.Name,
+                MessageType = message is BuyMessage ? MessageType.Buy : MessageType.Play,
+                Args = message.Args
+            });
         }
     }
 }

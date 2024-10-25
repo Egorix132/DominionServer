@@ -40,10 +40,22 @@ namespace GameModel
             return !Piles[type].Cards.Any();
         }
 
-        public bool IsGameOver()
+        public void ToTrash(ICard card)
         {
-            return Piles.Where(p => !p.Value.Cards.Any()).Count() >= 3
-                || !Piles[CardEnum.Province].Cards.Any();
+            Trash.Add(card);
+        }
+
+        public GameEndType? IsGameOver()
+        {
+            if (!Piles[CardEnum.Province].Cards.Any())
+            {
+                return GameEndType.Provinces;
+            }
+            if(Piles.Where(p => !p.Value.Cards.Any()).Count() >= 3)
+            {
+                return GameEndType.ThreePiles;
+            }
+            return null;
         }
     }
 }

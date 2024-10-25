@@ -13,4 +13,9 @@ public class ProvinceCard : AbstractCard, IVictoryCard
     public override CardEnum CardTypeId { get; } = CardEnum.Province;
 
     public override List<CardType> Types { get; } = new List<CardType> { CardType.Victory };
+
+    public int GetVictoryPoints(PlayerState _)
+    {
+        return VictoryPoints;
+    }
 }

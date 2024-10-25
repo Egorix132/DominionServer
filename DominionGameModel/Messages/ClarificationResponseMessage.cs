@@ -2,6 +2,9 @@
 
 namespace GameModel;
 
-public class ClarificationResponseMessage : BaseMessage
+public class ClarificationResponseMessage
 {
+    public CardEnum[] Args { get; set; } = Array.Empty<CardEnum>();
+    public CardEnum[] SecondArgs { get; set; } = Array.Empty<CardEnum>();
+    public CardEnum[] ThirdArgs { get; set; } = Array.Empty<CardEnum>();
 }

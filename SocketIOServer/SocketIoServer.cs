@@ -15,7 +15,7 @@ public class Server
 
     public void Start()
     {
-        using var server = new SocketIOServer(new SocketIOServerOption((ushort) 3000, PingInterval: 1000000, PingTimeout: 100000));
+        using var server = new SocketIOServer(new SocketIOServerOption(3000, PingInterval: 1000000, PingTimeout: 100000));
         
         server.OnConnection(socket =>
         {

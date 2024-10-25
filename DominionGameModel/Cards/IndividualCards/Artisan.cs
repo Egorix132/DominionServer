@@ -57,7 +57,7 @@ namespace GameModel.Cards.IndividualCards
             {
                 if (!player.State.HaveInHand(discardCardType))
                 {
-                    throw new MissingCardsInHandException(discardCardType);
+                    throw new MissingCardsException(discardCardType);
                 }
             }
 

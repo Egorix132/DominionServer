@@ -9,10 +9,11 @@ namespace Dominion.SocketIoServer.Dtos
         public int BuyCount { get; set; } = 1;
         public int AdditionalMoney { get; set; } = 0;
         public int TotalMoney { get; set; } = 0;
+        public int VictoryPoints { get; set; } = 0;
 
-        public List<AbstractCard> AllCards { get; set; } = new();
-        public List<AbstractCard> OnPlay = new();
-        public List<AbstractCard> PublicDiscard = new();
+        public List<CardEnum> AllCards { get; set; } = new();
+        public List<CardEnum> OnPlay = new();
+        public List<CardEnum> PublicDiscard = new();
 
         public PlayerStateDto()
         {
@@ -21,13 +22,14 @@ namespace Dominion.SocketIoServer.Dtos
 
         public PlayerStateDto(PlayerState playerState)
         {
-            AllCards = new List<AbstractCard>(playerState.AllCards.Cast<AbstractCard>());
-            PublicDiscard = new List<AbstractCard>(playerState.PublicDiscard.Cast<AbstractCard>());
-            OnPlay = new List<AbstractCard>(playerState.OnPlay.Cast<AbstractCard>());
+            AllCards = playerState.AllCards.Select(c => c.CardTypeId).ToList();
+            PublicDiscard = playerState.PublicDiscard.Select(c => c.CardTypeId).ToList();
+            OnPlay = playerState.OnPlay.Select(c => c.CardTypeId).ToList();
             ActionsCount = playerState.ActionsCount;
             BuyCount = playerState.BuyCount;
             AdditionalMoney = playerState.AdditionalMoney;
             TotalMoney = playerState.TotalMoney;
+            VictoryPoints = playerState.VictoryPoints;
         }
     }
 }

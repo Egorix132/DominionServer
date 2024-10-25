@@ -12,8 +12,8 @@ namespace GameModel
 
         Task PlayTurn(Game game);
 
-        Task<ClarificationResponseMessage> ClarificatePlayAsync(CardEnum playedCard, CardEnum[] args);
+        Task<ClarificationResponseMessage> ClarificatePlayAsync(ClarificationRequestMessage request);
 
-        void GameStopped();
+        void GameEnded(GameEndDto gameEndDto);
     }
 }

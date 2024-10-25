@@ -2,6 +2,6 @@
 {
     public interface IVictoryCard : ICard
     {
-        int VictoryPoints { get; }
+        int GetVictoryPoints(PlayerState player);
     }
 }
