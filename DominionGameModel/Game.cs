@@ -60,7 +60,7 @@ namespace GameModel
                     {
                         Console.WriteLine($"{log.Turn} {log.PlayerName} {log.MessageType} {log.Args}");
                     }
-                    Console.WriteLine(e);
+                    //Console.WriteLine(e.Message);
                 }
 
                 gameEndType = Kingdom.IsGameOver();
@@ -118,6 +118,7 @@ namespace GameModel
                 Turn = Turn,
                 PlayerName = player.Name,
                 MessageType = message is BuyMessage ? MessageType.Buy : MessageType.Play,
+                PlayedCard = message is PlayCardMessage playCardMessage ? playCardMessage.PlayedCard : null,
                 Args = message.Args
             });
         }

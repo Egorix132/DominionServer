@@ -9,12 +9,12 @@ using SocketIOSharp.Client;
 using SocketIOSharp.Common.Packet;
 using WebSocketSharp;
 
-/*var cards = new Dictionary<CardEnum, ICard>();
+/*var cards = new Dictionary<int, ICard>();
 foreach (var cardEnum in Enum.GetValues<CardEnum>())
 {
     try
     {
-        cards.Add(cardEnum, CardFactory.CreateCard(cardEnum));
+        cards.Add((int)cardEnum, CardFactory.CreateCard(cardEnum));
     }
     catch { }
 }

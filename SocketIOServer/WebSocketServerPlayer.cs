@@ -1,6 +1,5 @@
 ﻿using Dominion.SocketIoServer.Dtos;
 using GameModel;
-using GameModel.Cards;
 using GameModel.Infrastructure.Exceptions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;

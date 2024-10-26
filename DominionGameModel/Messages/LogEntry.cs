@@ -8,6 +8,8 @@ public class LogEntry
 
     public string PlayerName { get; set; }
 
+    public CardEnum? PlayedCard { get; set; }
+
     public MessageType MessageType { get; set; }
 
     public CardEnum[] Args { get; set; } = Array.Empty<CardEnum>();
