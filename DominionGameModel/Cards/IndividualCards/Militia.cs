@@ -39,7 +39,7 @@ public class MilitiaCard : AbstractActionCard
             IEnumerable<CardEnum> cardsToDiscard;
             try
             {
-                cardsToDiscard = clarification.Args.Take(handSize - 3).Cast<CardEnum>();
+                cardsToDiscard = clarification.Args.Take(handSize - 3);
             }
             catch
             {

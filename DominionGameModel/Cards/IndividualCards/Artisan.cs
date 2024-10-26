@@ -1,6 +1,7 @@
 ﻿using GameModel.Infrastructure.Attributes;
 using GameModel.Infrastructure;
 using GameModel.Infrastructure.Exceptions;
+using EvoClient.Utils;
 
 namespace GameModel.Cards.IndividualCards
 {
@@ -47,7 +48,7 @@ namespace GameModel.Cards.IndividualCards
                 throw new PileIsEmptyException(getCardType);
             }
 
-            var getCardCost = getCardType.GetAttribute<CardCostAttribute>()!.CardCost;
+            var getCardCost = CardEnumDict.GetCard(getCardType).Cost;
             if (getCardCost > 5)
             {
                 throw new NotEnoughMoneyException(getCardCost, 5);

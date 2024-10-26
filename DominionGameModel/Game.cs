@@ -1,4 +1,5 @@
 ﻿using GameModel.Infrastructure;
+using GameModel.Infrastructure.Exceptions;
 using System.Diagnostics;
 
 namespace GameModel
@@ -47,7 +48,7 @@ namespace GameModel
 
                 try
                 {
-                    
+
                     CurrentPlayer = Players[playerTurnCounter % Players.Count];
                     await CurrentPlayer.PlayTurnAsync(this);
 
@@ -70,9 +71,55 @@ namespace GameModel
 
             stopWatch.Stop();
             Console.WriteLine(stopWatch.ElapsedMilliseconds);
-            
+
             EndGame(gameEndType.Value);
         }
+
+        public async Task<GameEndDto> StartEvoGame()
+        {
+            Turn = 0;
+            int playerTurnCounter = 0;
+            GameEndType? gameEndType = null;
+            while (gameEndType == null)
+            {
+                if (Turn > 40)
+                {
+                    return GetGameResult(GameEndType.ToooLong);
+                }
+                if (playerTurnCounter % Players.Count == 0)
+                {
+                    Turn++;
+                }
+
+                try
+                {
+
+                    CurrentPlayer = Players[playerTurnCounter % Players.Count];
+                    await CurrentPlayer.PlayTurnAsync(this);
+
+                    CurrentPlayer.State.EndTurn();
+
+                }
+                catch (BaseDominionException e)
+                {
+                    var a = e;
+                }
+                catch (Exception e)
+                {
+                    foreach (var log in Logs)
+                    {
+                        Console.WriteLine($"{log.Turn} {log.PlayerName} {log.MessageType} {log.Args}");
+                    }
+                    //Console.WriteLine(e.Message);
+                }
+
+                gameEndType = Kingdom.IsGameOver();
+                playerTurnCounter++;
+            }
+
+            return GetGameResult(gameEndType.Value);
+        }
+
 
         private void EndGame(GameEndType gameEndType)
         {
@@ -106,7 +153,7 @@ namespace GameModel
                     VictoryPoints = p.State.VictoryPoints
                 })
                 .ToList();
-            gameEndDto.WinnerName = Players[0].Name;
+            gameEndDto.WinnerName = gameEndDto.Players[0].Name;
 
             return gameEndDto;
         }

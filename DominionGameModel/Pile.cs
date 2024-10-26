@@ -1,4 +1,5 @@
-﻿using GameModel.Cards;
+﻿using EvoClient.Utils;
+using GameModel.Cards;
 using GameModel.Infrastructure;
 using GameModel.Infrastructure.Attributes;
 
@@ -9,7 +10,7 @@ namespace GameModel
         public CardEnum Type { get; set; }
         internal Stack<ICard> Cards { get; } = new();
         public int Count => Cards.Count;
-        public int Cost => Type.GetAttribute<CardCostAttribute>()!.CardCost;
+        public int Cost => CardEnumDict.GetCard(Type).Cost;
 
         public Pile(CardEnum cardType, int count = 10)
         {

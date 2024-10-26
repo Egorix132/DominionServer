@@ -1,4 +1,5 @@
-﻿using GameModel.Cards;
+﻿using EvoClient.Utils;
+using GameModel.Cards;
 using GameModel.Cards.IndividualCards;
 using GameModel.Infrastructure;
 using GameModel.Infrastructure.Attributes;
@@ -13,9 +14,9 @@ namespace GameModel
         public int ActionsCount { get; set; } = 1;
         public int BuyCount { get; set; } = 1;
         public int AdditionalMoney { get; set; } = 0;
-        public int TotalMoney => Hand.Where(c => c is ITreasureCard).Cast<ITreasureCard>().Sum(c => c.Money) + AdditionalMoney
+        public int TotalMoney => Hand.OfType<ITreasureCard>().Sum(c => c.Money) + AdditionalMoney
             + (Hand.Any(c => c.CardTypeId == CardEnum.Silver) ? OnPlay.Where(c => c.CardTypeId == CardEnum.Merchant).Count() : 0);
-        public int VictoryPoints => AllCards.Where(c => c is IVictoryCard).Cast<IVictoryCard>().Sum(c => c.GetVictoryPoints(this));
+        public int VictoryPoints => AllCards.OfType<IVictoryCard>().Sum(c => c.GetVictoryPoints(this));
 
         public List<ICard> AllCards { get; set; } = new();
 
@@ -221,8 +222,8 @@ namespace GameModel
                     .Select(g => g.FirstOrDefault())
                     .ToArray());
             }
-            var requiredMoney = buyMessage.Args.Sum(t => t.GetAttribute<CardCostAttribute>()!.CardCost);
-            var treasureCards = new List<ITreasureCard>(Hand.Where(c => c is ITreasureCard).Cast<ITreasureCard>());
+            var requiredMoney = buyMessage.Args.Sum(t => CardEnumDict.GetCard(t).Cost);
+            var treasureCards = new List<ITreasureCard>(Hand.OfType<ITreasureCard>());
             
             if (requiredMoney > TotalMoney)
             {

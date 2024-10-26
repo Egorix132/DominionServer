@@ -1,6 +1,7 @@
 ﻿using GameModel.Infrastructure.Attributes;
 using GameModel.Infrastructure.Exceptions;
 using GameModel.Infrastructure;
+using EvoClient.Utils;
 
 namespace GameModel.Cards.IndividualCards;
 
@@ -39,7 +40,7 @@ public class WorkshopCard : AbstractActionCard
             throw new PileIsEmptyException(getCardType);
         }
 
-        var getCardCost = getCardType.GetAttribute<CardCostAttribute>()!.CardCost;
+        var getCardCost = CardEnumDict.GetCard(getCardType).Cost;
         if (getCardCost > 4)
         {
             throw new NotEnoughMoneyException(getCardCost, 5);

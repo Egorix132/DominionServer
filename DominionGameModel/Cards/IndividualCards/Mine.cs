@@ -1,4 +1,5 @@
-﻿using GameModel.Infrastructure;
+﻿using EvoClient.Utils;
+using GameModel.Infrastructure;
 using GameModel.Infrastructure.Attributes;
 using GameModel.Infrastructure.Exceptions;
 
@@ -43,10 +44,10 @@ public class MineCard : AbstractActionCard
             throw new PileIsEmptyException(getCardType);
         }
 
-        if (getCardType.GetAttribute<CardTypesAttribute>()!.CardTypes.All(t => t != CardType.Treasure)
-            || trashCardType.GetAttribute<CardTypesAttribute>()!.CardTypes.All(t => t != CardType.Treasure)
-            || (getCardType.GetAttribute<CardCostAttribute>()!.CardCost
-            > trashCardType.GetAttribute<CardCostAttribute>()!.CardCost + 3))
+        if (CardEnumDict.GetCard(getCardType).Types.All(t => t != CardType.Treasure)
+            || CardEnumDict.GetCard(trashCardType).Types.All(t => t != CardType.Treasure)
+            || (CardEnumDict.GetCard(getCardType).Cost
+            > CardEnumDict.GetCard(trashCardType).Cost + 3))
         {
             throw new ArgumentException($"{trashCardType}, {getCardType}");
         }

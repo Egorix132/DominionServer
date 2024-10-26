@@ -18,7 +18,7 @@ foreach (var cardEnum in Enum.GetValues<CardEnum>())
     }
     catch { }
 }
-var json = JsonConvert.SerializeObject(cards);*/
+var json = JsonConvert.SerializeObject(cards, new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.Auto });*/
 
 Console.WriteLine("Input your name!");
 var name = Console.ReadLine();

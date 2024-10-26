@@ -1,4 +1,5 @@
-﻿using GameModel.Infrastructure;
+﻿using EvoClient.Utils;
+using GameModel.Infrastructure;
 using GameModel.Infrastructure.Attributes;
 using GameModel.Infrastructure.Exceptions;
 
@@ -43,8 +44,8 @@ public class RemodelCard : AbstractActionCard
             throw new PileIsEmptyException(getCardType);
         }
 
-        var getCardCost = getCardType.GetAttribute<CardCostAttribute>()!.CardCost;
-        var trashCardCost = trashCardType.GetAttribute<CardCostAttribute>()!.CardCost;
+        var getCardCost = CardEnumDict.GetCard(getCardType).Cost;
+        var trashCardCost = CardEnumDict.GetCard(trashCardType).Cost;
 
         if (getCardCost
             > trashCardCost + 2)
