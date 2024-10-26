@@ -98,7 +98,7 @@ namespace GameModel
             gameEndDto.GameEndType = gameEndType;
             gameEndDto.Turn = Turn;
             gameEndDto.Players = Players
-                .OrderBy(p => p.State.VictoryPoints)
+                .OrderByDescending(p => p.State.VictoryPoints)
                 .Select((p, i) => new PlayerVictoryDto()
                 {
                     Name = p.Name,
