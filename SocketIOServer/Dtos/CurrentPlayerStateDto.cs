@@ -10,6 +10,7 @@ namespace Dominion.SocketIoServer.Dtos
         public int BuyCount { get; set; } = 1;
         public int AdditionalMoney { get; set; } = 0;
         public int TotalMoney { get; set; } = 0;
+        public int VictoryPoints { get; set; } = 0;
 
         public List<CardEnum> AllCards;
         public List<CardEnum> Hand;
@@ -36,6 +37,7 @@ namespace Dominion.SocketIoServer.Dtos
             BuyCount = playerState.BuyCount;
             AdditionalMoney = playerState.AdditionalMoney;
             TotalMoney = playerState.TotalMoney;
+            VictoryPoints = playerState.VictoryPoints;
         }
     }
 }

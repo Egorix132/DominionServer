@@ -70,7 +70,6 @@ namespace GameModel
 
             stopWatch.Stop();
             Console.WriteLine(stopWatch.ElapsedMilliseconds);
-
             
             EndGame(gameEndType.Value);
         }

@@ -1,7 +1,4 @@
 ﻿using Dominion.SocketIoServer.Dtos;
-using DominionClient;
-using GameModel;
-using GameModel.Cards;
 using SocketIOSharp.Common;
 using SocketIOSharp.Server;
 
