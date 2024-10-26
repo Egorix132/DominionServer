@@ -29,7 +29,7 @@ public class PoacherCard : AbstractActionCard
                 return;
             }
 
-            var clarification = await player.ClarificatePlayAsync(
+            var clarification = await player.ClarifyPlay(
                 new ClarificationRequestMessage()
                 {
                     PlayedCard = playMessage.PlayedCard,

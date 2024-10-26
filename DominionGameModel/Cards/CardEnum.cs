@@ -25,7 +25,7 @@ namespace GameModel.Cards
         [CardCost(5), CardTypes(CardType.Action)] Laboratory = 16,
         [CardCost(5), CardTypes(CardType.Action)] Library = 17,
         [CardCost(5), CardTypes(CardType.Action)] Market = 18,
-        [CardCost(4), CardTypes(CardType.Action)] Merchant = 19,
+        [CardCost(3), CardTypes(CardType.Action)] Merchant = 19,
         [CardCost(4), CardTypes(CardType.Action, CardType.Attack)] Militia = 20,
         [CardCost(5), CardTypes(CardType.Action)] Mine = 21,
         [CardCost(2), CardTypes(CardType.Action, CardType.Reaction)] Moat = 22,

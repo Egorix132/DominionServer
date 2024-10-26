@@ -19,9 +19,9 @@ public class ThroneRoomCard : AbstractActionCard
         var doubledCardType = playMessage.Args.FirstOrDefault();
         var doubledCard = player.State.Hand.FirstOrDefault(c => c.CardTypeId == doubledCardType);
 
-        await player.State.PlayCard(game, player, new PlayCardMessage { PlayedCard = doubledCardType, Args = playMessage.Args.Skip(1).ToArray() });
+        await player.State.PlayCard(game, player, new PlayCardMessage(doubledCardType, playMessage.Args.Skip(1).ToArray()));
 
-        var clarification = await player.ClarificatePlayAsync(
+        var clarification = await player.ClarifyPlay(
             new ClarificationRequestMessage()
             {
                 PlayedCard = doubledCardType,
@@ -35,7 +35,7 @@ public class ThroneRoomCard : AbstractActionCard
         await player.State.PlayCard(
             game, 
             player, 
-            new PlayCardMessage { PlayedCard = doubledCardType, Args = clarification.Args });
+            new PlayCardMessage (doubledCardType, clarification.Args));
     }
 
     public override bool CanAct(Game game, IPlayer player, PlayCardMessage playMessage)

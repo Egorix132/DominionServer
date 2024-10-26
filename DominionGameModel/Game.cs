@@ -1,4 +1,5 @@
 ﻿using GameModel.Infrastructure;
+using System.Diagnostics;
 
 namespace GameModel
 {
@@ -32,6 +33,8 @@ namespace GameModel
 
         public async Task StartGame()
         {
+            var stopWatch = new Stopwatch();
+            stopWatch.Start();
             Turn = 0;
             int playerTurnCounter = 0;
             GameEndType? gameEndType = null;
@@ -41,23 +44,44 @@ namespace GameModel
                 {
                     Turn++;
                 }
-                CurrentPlayer = Players[playerTurnCounter % Players.Count];
-                await CurrentPlayer.PlayTurn(this);
 
-                CurrentPlayer.State.EndTurn();
+                try
+                {
+                    
+                    CurrentPlayer = Players[playerTurnCounter % Players.Count];
+                    await CurrentPlayer.PlayTurnAsync(this);
+
+                    CurrentPlayer.State.EndTurn();
+
+                }
+                catch (Exception e)
+                {
+                    foreach (var log in Logs)
+                    {
+                        Console.WriteLine($"{log.Turn} {log.PlayerName} {log.MessageType} {log.Args}");
+                    }
+                    Console.WriteLine(e);
+                }
 
                 gameEndType = Kingdom.IsGameOver();
                 playerTurnCounter++;
+
             }
 
+            stopWatch.Stop();
+            Console.WriteLine(stopWatch.ElapsedMilliseconds);
+
+            
             EndGame(gameEndType.Value);
         }
 
         private void EndGame(GameEndType gameEndType)
         {
+            var gameResult = GetGameResult(gameEndType);
+            Console.WriteLine($"{gameEndType} Winner: {gameResult.WinnerName}");
             foreach (var player in Players)
             {
-                player.GameEnded(GetGameResult(gameEndType));
+                player.GameEnded(gameResult);
             }
         }
 

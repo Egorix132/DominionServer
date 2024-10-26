@@ -13,7 +13,8 @@ namespace GameModel
         public int ActionsCount { get; set; } = 1;
         public int BuyCount { get; set; } = 1;
         public int AdditionalMoney { get; set; } = 0;
-        public int TotalMoney => Hand.Where(c => c is ITreasureCard).Cast<ITreasureCard>().Sum(c => c.Money) + AdditionalMoney;
+        public int TotalMoney => Hand.Where(c => c is ITreasureCard).Cast<ITreasureCard>().Sum(c => c.Money) + AdditionalMoney
+            + (Hand.Any(c => c.CardTypeId == CardEnum.Silver) ? OnPlay.Where(c => c.CardTypeId == CardEnum.Merchant).Count() : 0);
         public int VictoryPoints => AllCards.Where(c => c is IVictoryCard).Cast<IVictoryCard>().Sum(c => c.GetVictoryPoints(this));
 
         public List<ICard> AllCards { get; set; } = new();
@@ -222,11 +223,10 @@ namespace GameModel
             }
             var requiredMoney = buyMessage.Args.Sum(t => t.GetAttribute<CardCostAttribute>()!.CardCost);
             var treasureCards = new List<ITreasureCard>(Hand.Where(c => c is ITreasureCard).Cast<ITreasureCard>());
-            var haveMoney = treasureCards.Sum(c => c.Money) + AdditionalMoney;
             
-            if (requiredMoney > haveMoney)
+            if (requiredMoney > TotalMoney)
             {
-                throw new NotEnoughMoneyException(requiredMoney, haveMoney);
+                throw new NotEnoughMoneyException(requiredMoney, TotalMoney);
             }
 
             requiredMoney -= AdditionalMoney;
@@ -383,6 +383,18 @@ namespace GameModel
             BuyCount = 1;
 
             DrawToHand();
+        }
+
+        public void RemoveFromDiscard(ICard card)
+        {
+            if(PublicDiscard.Contains(card))
+            {
+                PublicDiscard.Remove(card);
+            }
+            else
+            {
+                _privateDiscard.Remove(card);
+            }
         }
     }
 }

@@ -28,7 +28,7 @@ public class VassalCard : AbstractActionCard
 
         if (topDeskCard.Types.Contains(CardType.Action))
         {
-            var clarification = await player.ClarificatePlayAsync(
+            var clarification = await player.ClarifyPlay(
                 new ClarificationRequestMessage()
                 {
                     PlayedCard = topDeskCard.CardTypeId,
@@ -36,15 +36,27 @@ public class VassalCard : AbstractActionCard
                     Args = player.State.Hand.Select(c => c.CardTypeId).ToArray()
                 });
 
-            if(!clarification.Args.Any())
+            if (!clarification.Args.Any())
             {
                 player.State.MoveCardsToDiscard(topDeskCard);
+                return;
             }
 
-            await player.State.PlayCard(
-                game, 
-                player, 
-                new PlayCardMessage { PlayedCard = topDeskCard.CardTypeId, Args = playMessage.Args.Skip(1).ToArray() });
+            player.State.Hand.Add(topDeskCard);
+            player.State.ActionsCount++;
+            try
+            {
+                await player.State.PlayCard(
+                    game,
+                    player,
+                    new PlayCardMessage(topDeskCard.CardTypeId, playMessage.Args.Skip(1).ToArray()));
+            }
+            catch (Exception e)
+            {
+                player.State.ActionsCount--;
+                player.State.OnDeckFromHand(topDeskCard.CardTypeId);
+                player.SendException(e);
+            }
         }
         else
         {

@@ -1,4 +1,5 @@
 ﻿using Dominion.SocketIoServer.Dtos;
+using DominionClient;
 using GameModel;
 using GameModel.Cards;
 using SocketIOSharp.Common;
@@ -39,6 +40,30 @@ public class Server
                     Console.WriteLine(ex.ToString());
                 }
             });
+            /*client.ListenToMessage("botTest", (data) =>
+            {
+                try
+                {
+                    if (data.Length < 1 || !data[0].TryDeserializeObject<JoinRoomMessage>(out var joinRoomMessage))
+                    {
+                        throw new ArgumentException("BadRequest");
+                    }
+
+                    RoomService.JoinRoom(
+                        joinRoomMessage!.RoomName,
+                        new MoneyBot("1"),
+                        joinRoomMessage.RoomSize);
+
+                    RoomService.JoinRoom(
+                        joinRoomMessage!.RoomName,
+                        new MoneyBot("2"),
+                        joinRoomMessage.RoomSize);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.ToString());
+                }
+            });*/
             socket.On(SocketIOEvent.DISCONNECT, () =>
             {
                 RoomService.DisconnectFromRooms(client.Id.ToString());

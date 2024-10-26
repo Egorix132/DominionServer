@@ -18,41 +18,43 @@ public class LibraryCard : AbstractActionCard
 
     protected override async Task Act(Game game, IPlayer player, PlayCardMessage playMessage)
     {
-        var allDiscardedCards = new List<ICard>();
+        var declinedCards = new List<ICard>();
         var handSize = player.State.Hand.Count;
         while (handSize < 7)
         {
-            var drawedCards = player.State.Draw(7 - handSize);
-            var cardsToDraw = new List<ICard>(drawedCards);
+            var drawedCard = player.State.Draw(1).FirstOrDefault();
 
-            var clarification = await player.ClarificatePlayAsync(
-                new ClarificationRequestMessage()
-                {
-                    PlayedCard = playMessage.PlayedCard,
-                    Args = drawedCards.Select(c => c.CardTypeId).ToArray()
-                });
-
-            var discardedCards = clarification.Args.Take(7 - handSize).ToList();
-
-            if (discardedCards.Any(c => c == null) 
-                || discardedCards.GroupBy(t => t)
-                    .Any(group => drawedCards.Where(c => c.CardTypeId == group.Key).Count() < group.Count())
-                || discardedCards.Any(t => !t!.GetAttribute<CardTypesAttribute>()!.CardTypes.Contains(CardType.Action)))
+            if(drawedCard == null)
             {
-                player.State.Hand.AddRange(cardsToDraw);
                 return;
             }
 
-            foreach (var cardType in discardedCards)
+            if (!drawedCard.Types.Contains(CardType.Action))
             {
-                var cardToDiscard = drawedCards.First(c => c.CardTypeId == cardType);
-                allDiscardedCards.Add(cardToDiscard);
-                cardsToDraw.Remove(cardToDiscard);
+                player.State.Hand.Add(drawedCard);
+                handSize = player.State.Hand.Count;
+                continue;
             }
-            player.State.Hand.AddRange(cardsToDraw);
+
+            var clarification = await player.ClarifyPlay(
+                new ClarificationRequestMessage()
+                {
+                    PlayedCard = playMessage.PlayedCard,
+                    Args = new CardEnum[] { drawedCard.CardTypeId }
+                });
+
+            var discardedCards = clarification.Args.Take(1).ToList();
+
+            if (!discardedCards.Any() || drawedCard.CardTypeId != discardedCards.First())
+            {
+                declinedCards.Add(drawedCard);
+                continue;
+            }
+
+            player.State.Hand.Add(drawedCard);
             handSize = player.State.Hand.Count;
         }
 
-        player.State.MoveCardsToDiscard(allDiscardedCards);
+        player.State.MoveCardsToDiscard(declinedCards);
     }
 }

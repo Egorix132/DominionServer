@@ -28,7 +28,7 @@ namespace Dominion.SocketIoServer
 
         private TaskCompletionSource TurnTask { get; set; }
 
-        public async Task PlayTurn(Game game)
+        public async Task PlayTurnAsync(Game game)
         {
             try
             {
@@ -85,7 +85,7 @@ namespace Dominion.SocketIoServer
             {
                 Console.WriteLine(e.ToString());
                 _socket.SendMessage("exception", e.Message);
-                ackEvent.Callback(Array.Empty<JToken>());
+                ackEvent.Callback(new JToken[] { JToken.FromObject(new GameStateDto(Game), JsonSerializer.Create(new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.Auto })) });
             }
         }
 
@@ -141,7 +141,7 @@ namespace Dominion.SocketIoServer
             }
         }
 
-        public async Task<ClarificationResponseMessage> ClarificatePlayAsync(ClarificationRequestMessage request)
+        public async Task<ClarificationResponseMessage> ClarifyPlay(ClarificationRequestMessage request)
         {
             Unsubscribe();
 
@@ -174,6 +174,11 @@ namespace Dominion.SocketIoServer
             Unsubscribe();
 
             _socket.SendMessage("endGame", gameEndDto);
+        }
+
+        public void SendException(Exception e)
+        {
+            _socket.SendMessage("exception", e.Message);
         }
     }
 }

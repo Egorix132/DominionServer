@@ -30,7 +30,7 @@ public class SentryCard : AbstractActionCard
                 return;
             }
 
-            var clarification = await player.ClarificatePlayAsync(
+            var clarification = await player.ClarifyPlay(
                 new ClarificationRequestMessage()
                 {
                     PlayedCard = playMessage.PlayedCard,

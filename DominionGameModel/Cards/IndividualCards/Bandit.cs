@@ -48,7 +48,7 @@ public class BanditCard : AbstractActionCard
 
             if (firstCardIsNotCopperTreashure && secondCardIsNotCopperTreashure)
             {
-                var clarification = await player.ClarificatePlayAsync(
+                var clarification = await player.ClarifyPlay(
                     new ClarificationRequestMessage()
                     {
                         PlayedCard = playMessage.PlayedCard,

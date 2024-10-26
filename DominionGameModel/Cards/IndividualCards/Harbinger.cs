@@ -17,9 +17,10 @@ public class HarbingerCard : AbstractActionCard
     protected override async Task Act(Game game, IPlayer player, PlayCardMessage playMessage)
     {
         var drawedCard = player.State.DrawToHand(1);
+        player.State.ActionsCount++;
         try
         {
-            var clarification = await player.ClarificatePlayAsync(
+            var clarification = await player.ClarifyPlay(
                 new ClarificationRequestMessage()
                 {
                     PlayedCard = playMessage.PlayedCard,
@@ -40,11 +41,12 @@ public class HarbingerCard : AbstractActionCard
                 throw new MissingCardsException(getDiscardedCardType);
             }
 
-            player.State.Discard.Remove(getDiscardedCard);
+            player.State.RemoveFromDiscard(getDiscardedCard);
             player.State.MoveOnDeck(getDiscardedCard);
         }
         catch
         {
+            player.State.ActionsCount--;
             player.State.OnDeckFromHand(drawedCard.FirstOrDefault()?.CardTypeId);
             throw;
         }

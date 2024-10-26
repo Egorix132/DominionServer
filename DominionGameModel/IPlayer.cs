@@ -10,10 +10,12 @@ namespace GameModel
 
         PlayerState State { get; }
 
-        Task PlayTurn(Game game);
+        Task PlayTurnAsync(Game game);
 
-        Task<ClarificationResponseMessage> ClarificatePlayAsync(ClarificationRequestMessage request);
+        Task<ClarificationResponseMessage> ClarifyPlay(ClarificationRequestMessage request);
 
         void GameEnded(GameEndDto gameEndDto);
+
+        void SendException(Exception e);
     }
 }

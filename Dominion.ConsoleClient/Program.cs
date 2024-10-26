@@ -7,9 +7,9 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using SocketIOSharp.Client;
 using SocketIOSharp.Common.Packet;
+using WebSocketSharp;
 
-
-var cards = new Dictionary<CardEnum, ICard>();
+/*var cards = new Dictionary<CardEnum, ICard>();
 foreach (var cardEnum in Enum.GetValues<CardEnum>())
 {
     try
@@ -18,7 +18,7 @@ foreach (var cardEnum in Enum.GetValues<CardEnum>())
     }
     catch { }
 }
-var json = JsonConvert.SerializeObject(cards);
+var json = JsonConvert.SerializeObject(cards);*/
 
 Console.WriteLine("Input your name!");
 var name = Console.ReadLine();
@@ -99,11 +99,11 @@ async Task PlayTurnAsync(GameStateDto game)
 
         if (command == "p")
         {
-            var message = new PlayCardMessage()
+            if (!argsList.Any())
             {
-                PlayedCard = argsList[0],
-                Args = argsList.Skip(1).ToArray()
-            };
+                continue;
+            }
+            var message = new PlayCardMessage(argsList[0], argsList.Skip(1).ToArray());
             var gameStateData = await client.AskAsync("playCard", message);
 
             if(gameStateData.Length != 0)
@@ -120,8 +120,19 @@ async Task PlayTurnAsync(GameStateDto game)
             {
                 Args = args.Skip(1).Select(a => Enum.Parse<CardEnum>(a)).ToArray()
             };
-            client.Emit("buyCards", message, () => { });
+            client.Emit("buyCards", message);
             turnEnd = true;
+        }
+
+        if (command == "d")
+        {
+            Console.WriteLine($"Discard:\n");
+            Console.WriteLine(string.Join(", ", game.PlayerState.Discard.Select(c => $"{c}-{(int)c}")));
+        }
+
+        if (command == "h")
+        {
+            DisplayPlayerState(game.PlayerState);
         }
     }
 }
@@ -148,7 +159,10 @@ async Task ClarificatePlayAsync(ClarificationRequestMessage clarificationRequest
 
     var input = await inputReader.ReadLineAsync();
     var args = input!.Split(" ");
-    var argsList = args.Select(a => Enum.Parse<CardEnum>(a)).ToArray();
+    var argsList = args.Select<string, CardEnum?>(a => a.IsNullOrEmpty() ? null : Enum.Parse<CardEnum>(a))
+        .Where(a => a != null)
+        .Cast<CardEnum>()
+        .ToArray();
 
     var response = new ClarificationResponseMessage() { Args = argsList };
 
@@ -163,7 +177,6 @@ async Task ClarificatePlayAsync(ClarificationRequestMessage clarificationRequest
         var thirdArgsList = args.Select(a => Enum.Parse<CardEnum>(a)).ToArray();
 
         response = new ClarificationResponseMessage() { Args = argsList, SecondArgs = secondArgsList, ThirdArgs = thirdArgsList };
-
     }
 
     callback.Invoke(new JToken[] { JToken.FromObject(response) });

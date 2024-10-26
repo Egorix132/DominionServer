@@ -16,6 +16,5 @@ public class MerchantCard : AbstractActionCard
     {
         player.State.DrawToHand(1);
         player.State.ActionsCount++;
-        player.State.AdditionalMoney++;
     }
 }
