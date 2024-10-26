@@ -1,10 +1,12 @@
 ﻿using GameModel;
+using GameModel.Infrastructure.Exceptions;
 
 namespace Dominion.SocketIoServer.Dtos
 {
     public class GameStateDto
     {
         public Guid GameId { get; set; }
+        public ExceptionsEnum? ExceptionType { get; set; }
 
         public List<PlayerDto> Players { get; set; } = new();
         public KingdomDto Kingdom { get; set; }
@@ -15,9 +17,10 @@ namespace Dominion.SocketIoServer.Dtos
 
         public GameStateDto() { }
 
-        public GameStateDto(Game game)
+        public GameStateDto(Game game, ExceptionsEnum? exceptionType = null)
         {
             GameId = game.Id;
+            ExceptionType = exceptionType;
             Players = game.Players.Where(p => p.Id != game.CurrentPlayer.Id).Select(p => new PlayerDto(p)).ToList();
             PlayerId = game.CurrentPlayer.Id;
             PlayerState = new CurrentPlayerStateDto(game.CurrentPlayer.State);

@@ -1,6 +1,7 @@
 ﻿using Dominion.SocketIoServer.Dtos;
 using GameModel;
 using GameModel.Cards;
+using GameModel.Infrastructure.Exceptions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using SocketIOSharp.Common.Packet;
@@ -81,11 +82,17 @@ namespace Dominion.SocketIoServer
                 Game.AddLog(this, playCardMessage!);
                 ackEvent.Callback(new JToken[] { JToken.FromObject(new GameStateDto(Game), JsonSerializer.Create(new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.Auto })) });
             }
+            catch (BaseDominionException e)
+            {
+                Console.WriteLine(e.ToString());
+                _socket.SendMessage("exception", e.Message);
+                ackEvent.Callback(new JToken[] { JToken.FromObject(new GameStateDto(Game, e.ExceptionType), JsonSerializer.Create(new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.Auto })) });
+            }
             catch (Exception e)
             {
                 Console.WriteLine(e.ToString());
                 _socket.SendMessage("exception", e.Message);
-                ackEvent.Callback(new JToken[] { JToken.FromObject(new GameStateDto(Game), JsonSerializer.Create(new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.Auto })) });
+                ackEvent.Callback(new JToken[] { JToken.FromObject(new GameStateDto(Game, ExceptionsEnum.InnerException), JsonSerializer.Create(new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.Auto })) });
             }
         }
 

@@ -2,15 +2,15 @@
 
 namespace GameModel.Infrastructure.Exceptions
 {
-    public class MissingCardsException : Exception
+    public class MissingCardsException : BaseDominionException
     {
         public CardEnum[] CardEnum { get; set; }
-        public MissingCardsException(params CardEnum[] cardEnum) : base("Missing cards: " + string.Join(", ", cardEnum))
+        public MissingCardsException(params CardEnum[] cardEnum) : base(ExceptionsEnum.MissingCard, "Missing cards: " + string.Join(", ", cardEnum))
         {
             CardEnum = cardEnum;
         }
 
-        public MissingCardsException(IEnumerable<CardEnum> cardEnum) : base("Missing cards: " + string.Join(", ", cardEnum))
+        public MissingCardsException(IEnumerable<CardEnum> cardEnum) : base(ExceptionsEnum.MissingCard, "Missing cards: " + string.Join(", ", cardEnum))
         {
             CardEnum = cardEnum.ToArray();
         }

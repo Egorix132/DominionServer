@@ -2,10 +2,10 @@
 {
     public class BaseDominionException : Exception
     {
-        public ExceptionsEnum Exception { get; set; }
-        public BaseDominionException(ExceptionsEnum exception) : base(exception.ToString())
+        public ExceptionsEnum ExceptionType { get; set; }
+        public BaseDominionException(ExceptionsEnum exception, string message = "") : base(exception.ToString())
         {
-            Exception = exception;
+            ExceptionType = exception;
         }
     }
 }
