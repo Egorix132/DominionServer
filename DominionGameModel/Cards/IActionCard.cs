@@ -2,7 +2,10 @@
 {
     public interface IActionCard : ICard
     {
-        Task<bool> TryAct(Game game, IPlayer player, PlayCardMessage playMessage);
-        bool CanAct(Game game, IPlayer player, PlayCardMessage playMessage);
+        public int ArgsCount { get; }
+
+        Task<bool> TryAct(IGameState game, IPlayer player, PlayCardMessage playMessage);
+
+        bool CanAct(IGameState game, IPlayer player, PlayCardMessage playMessage);
     }
 }

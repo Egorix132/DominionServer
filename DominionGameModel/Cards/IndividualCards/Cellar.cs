@@ -8,13 +8,15 @@ public class CellarCard : AbstractActionCard
 
     public override int Cost { get; } = 2;
 
+    public override int ArgsCount { get; } = 4;
+
     public override string Text { get; } = "+1 Action\r\nDiscard any number of cards, then draw that many.";
 
     public override CardEnum CardTypeId { get; } = CardEnum.Cellar;
 
     public override List<CardType> Types { get; } = new List<CardType> { CardType.Action };
 
-    protected override async Task Act(Game game, IPlayer player, PlayCardMessage playMessage)
+    protected override async Task Act(IGameState game, IPlayer player, PlayCardMessage playMessage)
     {
         player.State.DiscardFromHand(DiscardType.LastToPublic, playMessage.Args);
 
@@ -23,14 +25,11 @@ public class CellarCard : AbstractActionCard
         player.State.ActionsCount++;
     }
 
-    public override bool CanAct(Game game, IPlayer player, PlayCardMessage playMessage)
+    public override bool CanAct(IGameState game, IPlayer player, PlayCardMessage playMessage)
     {
         if (!player.State.HaveInHand(playMessage.Args))
         {
-            throw new MissingCardsException(playMessage.Args
-                .GroupBy(t => t)
-                .Where(group => player.State.Hand.Where(c => c.CardTypeId == group.FirstOrDefault()).Count() < group.Count())
-                .Select(g => g.FirstOrDefault()).ToArray());
+            return false;
         }
 
         return true;

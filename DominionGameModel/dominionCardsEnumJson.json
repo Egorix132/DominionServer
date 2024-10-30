@@ -11,7 +11,7 @@
   "1": {
     "$type": "GameModel.Cards.IndividualCards.SilverCard, GameModel",
     "Name": "Silver",
-    "Cost": 0,
+    "Cost": 3,
     "Money": 2,
     "Text": "2",
     "CardTypeId": 1,
@@ -20,7 +20,7 @@
   "2": {
     "$type": "GameModel.Cards.IndividualCards.GoldCard, GameModel",
     "Name": "Gold",
-    "Cost": 0,
+    "Cost": 6,
     "Money": 3,
     "Text": "3",
     "CardTypeId": 2,
@@ -66,6 +66,7 @@
     "$type": "GameModel.Cards.IndividualCards.ArtisanCard, GameModel",
     "Name": "Artisan",
     "Cost": 6,
+    "ArgsCount": 2,
     "Text": "Gain a card to your hand costing up to $5.\r\nPut a card from your hand onto your deck.",
     "CardTypeId": 7,
     "Types": [ 1 ]
@@ -76,7 +77,8 @@
     "Cost": 5,
     "Text": "Gain a Gold. Each other player reveals the top 2 cards of their deck, trashes a revealed Treasure other than Copper, and discards the rest.",
     "CardTypeId": 8,
-    "Types": [ 1, 4 ]
+    "Types": [ 1, 4 ],
+    "ArgsCount": 0
   },
   "9": {
     "$type": "GameModel.Cards.IndividualCards.BureaucratCard, GameModel",
@@ -84,12 +86,14 @@
     "Cost": 4,
     "Text": "Gain a Silver onto your deck. Each other player reveals a Victory card from their hand and puts it onto their deck (or reveals a hand with no Victory cards).",
     "CardTypeId": 9,
-    "Types": [ 1, 4 ]
+    "Types": [ 1, 4 ],
+    "ArgsCount": 0
   },
   "10": {
     "$type": "GameModel.Cards.IndividualCards.CellarCard, GameModel",
     "Name": "Cellar",
     "Cost": 2,
+    "ArgsCount": 4,
     "Text": "+1 Action\r\nDiscard any number of cards, then draw that many.",
     "CardTypeId": 10,
     "Types": [ 1 ]
@@ -98,6 +102,7 @@
     "$type": "GameModel.Cards.IndividualCards.ChapelCard, GameModel",
     "Name": "Chapel",
     "Cost": 2,
+    "ArgsCount": 4,
     "Text": "Trash up to 4 cards from your hand.",
     "CardTypeId": 11,
     "Types": [ 1 ]
@@ -108,7 +113,8 @@
     "Cost": 5,
     "Text": "+4 Cards\r\n+1 Buy\r\nEach other player draws a card.",
     "CardTypeId": 12,
-    "Types": [ 1 ]
+    "Types": [ 1 ],
+    "ArgsCount": 0
   },
   "13": {
     "$type": "GameModel.Cards.IndividualCards.FestivalCard, GameModel",
@@ -116,7 +122,8 @@
     "Cost": 5,
     "Text": "+2 Actions\r\n+1 Buy\r\n+$2",
     "CardTypeId": 13,
-    "Types": [ 1 ]
+    "Types": [ 1 ],
+    "ArgsCount": 0
   },
   "14": {
     "$type": "GameModel.Cards.IndividualCards.GardensCard, GameModel",
@@ -132,7 +139,8 @@
     "Cost": 3,
     "Text": "+1 Card\r\n+1 Action\r\nLook through your discard pile. You may put a card from it onto your deck.",
     "CardTypeId": 15,
-    "Types": [ 1 ]
+    "Types": [ 1 ],
+    "ArgsCount": 0
   },
   "16": {
     "$type": "GameModel.Cards.IndividualCards.LaboratoryCard, GameModel",
@@ -140,7 +148,8 @@
     "Cost": 5,
     "Text": "+2 Cards\r\n+1 Action",
     "CardTypeId": 16,
-    "Types": [ 1 ]
+    "Types": [ 1 ],
+    "ArgsCount": 0
   },
   "17": {
     "$type": "GameModel.Cards.IndividualCards.LibraryCard, GameModel",
@@ -148,7 +157,8 @@
     "Cost": 5,
     "Text": "Draw until you have 7 cards in hand, skipping any Action cards you choose to; set those aside, discarding them afterwards.",
     "CardTypeId": 17,
-    "Types": [ 1 ]
+    "Types": [ 1 ],
+    "ArgsCount": 0
   },
   "18": {
     "$type": "GameModel.Cards.IndividualCards.MarketCard, GameModel",
@@ -156,7 +166,8 @@
     "Cost": 5,
     "Text": "+1 Card\r\n+1 Action\r\n+1 Buy\r\n+$1",
     "CardTypeId": 18,
-    "Types": [ 1 ]
+    "Types": [ 1 ],
+    "ArgsCount": 0
   },
   "19": {
     "$type": "GameModel.Cards.IndividualCards.MerchantCard, GameModel",
@@ -164,7 +175,8 @@
     "Cost": 3,
     "Text": "+1 Card\r\n+1 Action\r\nThe first time you play a Silver this turn, +$1.",
     "CardTypeId": 19,
-    "Types": [ 1 ]
+    "Types": [ 1 ],
+    "ArgsCount": 0
   },
   "20": {
     "$type": "GameModel.Cards.IndividualCards.MilitiaCard, GameModel",
@@ -172,12 +184,14 @@
     "Cost": 4,
     "Text": "+$2\r\nEach other player discards down to 3 cards in hand.",
     "CardTypeId": 20,
-    "Types": [ 1, 4 ]
+    "Types": [ 1, 4 ],
+    "ArgsCount": 0
   },
   "21": {
     "$type": "GameModel.Cards.IndividualCards.MineCard, GameModel",
     "Name": "Mine",
     "Cost": 5,
+    "ArgsCount": 2,
     "Text": "You may trash a Treasure from your hand. Gain a Treasure to your hand costing up to $3 more than it.",
     "CardTypeId": 21,
     "Types": [ 1 ]
@@ -188,7 +202,8 @@
     "Cost": 2,
     "Text": "+2 Cards\r\nWhen another player plays an Attack card, you may first reveal this from your hand, to be unaffected by it.",
     "CardTypeId": 22,
-    "Types": [ 1 ]
+    "Types": [ 1 ],
+    "ArgsCount": 0
   },
   "23": {
     "$type": "GameModel.Cards.IndividualCards.MoneylenderCard, GameModel",
@@ -196,7 +211,8 @@
     "Cost": 4,
     "Text": "+You may trash a Copper from your hand for +$3.",
     "CardTypeId": 23,
-    "Types": [ 1 ]
+    "Types": [ 1 ],
+    "ArgsCount": 0
   },
   "24": {
     "$type": "GameModel.Cards.IndividualCards.PoacherCard, GameModel",
@@ -204,12 +220,14 @@
     "Cost": 4,
     "Text": "+1 Card\r\n+1 Action\r\n+$1\r\nDiscard a card per empty Supply pile.",
     "CardTypeId": 24,
-    "Types": [ 1 ]
+    "Types": [ 1 ],
+    "ArgsCount": 0
   },
   "25": {
     "$type": "GameModel.Cards.IndividualCards.RemodelCard, GameModel",
     "Name": "Remodel",
     "Cost": 4,
+    "ArgsCount": 2,
     "Text": "Trash a card from your hand.\r\nGain a card costing up to $2 more than it.",
     "CardTypeId": 25,
     "Types": [ 1 ]
@@ -220,7 +238,8 @@
     "Cost": 5,
     "Text": "+1 Card\r\n+1 Action\r\nLook at the top 2 cards of your deck. Trash and/or discard any number of them. Put the rest back on top in any order.",
     "CardTypeId": 26,
-    "Types": [ 1 ]
+    "Types": [ 1 ],
+    "ArgsCount": 0
   },
   "27": {
     "$type": "GameModel.Cards.IndividualCards.SmithyCard, GameModel",
@@ -228,12 +247,14 @@
     "Cost": 5,
     "Text": "+3 Cards",
     "CardTypeId": 27,
-    "Types": [ 1 ]
+    "Types": [ 1 ],
+    "ArgsCount": 0
   },
   "28": {
     "$type": "GameModel.Cards.IndividualCards.ThroneRoomCard, GameModel",
     "Name": "ThroneRoom",
     "Cost": 4,
+    "ArgsCount": 1,
     "Text": "You may play an Action card from your hand twice.",
     "CardTypeId": 28,
     "Types": [ 1 ]
@@ -244,7 +265,8 @@
     "Cost": 3,
     "Text": "+$2\r\nDiscard the top card of your deck. If it is an Action card, you may play it.",
     "CardTypeId": 29,
-    "Types": [ 1 ]
+    "Types": [ 1 ],
+    "ArgsCount": 0
   },
   "30": {
     "$type": "GameModel.Cards.IndividualCards.VillageCard, GameModel",
@@ -252,7 +274,8 @@
     "Cost": 3,
     "Text": "+1 Card\r\n+2 Actions",
     "CardTypeId": 30,
-    "Types": [ 1 ]
+    "Types": [ 1 ],
+    "ArgsCount": 0
   },
   "31": {
     "$type": "GameModel.Cards.IndividualCards.WitchCard, GameModel",
@@ -260,12 +283,14 @@
     "Cost": 5,
     "Text": "+2 Cards\r\nEach other player gains a Curse.",
     "CardTypeId": 31,
-    "Types": [ 1, 4 ]
+    "Types": [ 1, 4 ],
+    "ArgsCount": 0
   },
   "32": {
     "$type": "GameModel.Cards.IndividualCards.WorkshopCard, GameModel",
     "Name": "Workshop",
     "Cost": 4,
+    "ArgsCount": 1,
     "Text": "Gain a card costing up to $4.",
     "CardTypeId": 32,
     "Types": [ 1 ]

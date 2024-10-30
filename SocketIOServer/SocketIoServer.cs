@@ -1,4 +1,5 @@
 ﻿using Dominion.SocketIoServer.Dtos;
+using GameModel;
 using SocketIOSharp.Common;
 using SocketIOSharp.Server;
 
@@ -27,10 +28,15 @@ public class Server
                         throw new ArgumentException("BadRequest");
                     }
 
+                    IPlayer player = (joinRoomMessage.IsSpectator ?? false)
+                        ? new SpectatorPlayer(client, joinRoomMessage.PlayerName) 
+                        : new WebSocketPlayer(client, joinRoomMessage.PlayerName);
+
                     RoomService.JoinRoom(
-                        joinRoomMessage!.RoomName, 
-                        new WebSocketPlayer(client, joinRoomMessage.PlayerName),
-                        joinRoomMessage.RoomSize);     
+                        joinRoomMessage!.RoomName,
+                        player,
+                        joinRoomMessage.RoomSize,
+                        joinRoomMessage.IsSpectator ?? false);     
                 }
                 catch (Exception ex)
                 {

@@ -16,7 +16,7 @@ public class LibraryCard : AbstractActionCard
 
     public override List<CardType> Types { get; } = new List<CardType> { CardType.Action };
 
-    protected override async Task Act(Game game, IPlayer player, PlayCardMessage playMessage)
+    protected override async Task Act(IGameState game, IPlayer player, PlayCardMessage playMessage)
     {
         var declinedCards = new List<ICard>();
         var handSize = player.State.Hand.Count;

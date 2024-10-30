@@ -9,7 +9,7 @@ namespace Dominion.SocketIoServer
 
         static RoomService() { }
 
-        public static bool JoinRoom(string name, IPlayer player, int? size = 2)
+        public static bool JoinRoom(string name, IPlayer player, int? size = 2, bool isSpectator = false)
         {
             if (!RoomList.TryGetValue(name, out var room))
             {
@@ -17,7 +17,7 @@ namespace Dominion.SocketIoServer
                 RoomList.Add(name, room);
             }
 
-            return room.Join(player);
+            return room.Join(player, isSpectator);
         }
 
         public static bool DisconnectFromRooms(string id)

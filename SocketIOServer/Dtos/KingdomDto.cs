@@ -10,7 +10,7 @@ namespace Dominion.SocketIoServer.Dtos
 
         public KingdomDto() { }
 
-        public KingdomDto(Kingdom kingdom)
+        public KingdomDto(IKingdomState kingdom)
         {
             Piles = kingdom.Piles;
             Trash = kingdom.Trash.Select(c => c.CardTypeId).ToList();

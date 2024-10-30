@@ -11,6 +11,7 @@ internal class Room
     public Game? Game = null;
 
     public List<IPlayer> Players { get; set; } = new();
+    public List<IPlayer> Spectators { get; set; } = new();
 
     public Room(string name, int size)
     {
@@ -18,9 +19,20 @@ internal class Room
         Size = size;
     }
 
-    public bool Join(IPlayer player)
+    public bool Join(IPlayer player, bool isSpectator = false)
     {
-        if(Game != null || Players.Count >= Size)
+        if (isSpectator)
+        {
+            Spectators.Add(player);
+
+            if(Game != null)
+            {
+                Game.AddSpectator(player);
+            }
+            return true;
+        }
+
+        if (Game != null || Players.Count >= Size)
         {
             return false;
         }
@@ -58,7 +70,8 @@ internal class Room
                                 CardEnum.Moat, CardEnum.Moneylender, CardEnum.Poacher, CardEnum.Remodel, CardEnum.Witch
                             },
                             Players.Count
-                        )
+                        ),
+                        Spectators
                     );
         await Game.StartGame();
 

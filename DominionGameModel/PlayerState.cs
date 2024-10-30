@@ -14,8 +14,8 @@ namespace GameModel
         public int ActionsCount { get; set; } = 1;
         public int BuyCount { get; set; } = 1;
         public int AdditionalMoney { get; set; } = 0;
-        public int TotalMoney => Hand.OfType<ITreasureCard>().Sum(c => c.Money) + AdditionalMoney
-            + (Hand.Any(c => c.CardTypeId == CardEnum.Silver) ? OnPlay.Where(c => c.CardTypeId == CardEnum.Merchant).Count() : 0);
+
+        public int TotalMoney = 0;
         public int VictoryPoints => AllCards.OfType<IVictoryCard>().Sum(c => c.GetVictoryPoints(this));
 
         public List<ICard> AllCards { get; set; } = new();
@@ -60,6 +60,7 @@ namespace GameModel
             Deck.Shuffle();
 
             DrawToHand();
+            CalculateTotalMoney();
         }
 
         public List<ICard> Draw(int size = 5)
@@ -93,7 +94,7 @@ namespace GameModel
             return drawedCards;
         }
 
-        public async Task PlayCard(Game game, IPlayer player, PlayCardMessage playCardMessage)
+        public async Task PlayCard(IGameState game, IPlayer player, PlayCardMessage playCardMessage)
         {
             if (game.CurrentPlayer.Id != player.Id)
             {
@@ -117,6 +118,7 @@ namespace GameModel
             try
             {
                 var isPlayed = await actionCard.TryAct(game, player, playCardMessage);
+                CalculateTotalMoney();
                 ActionsCount--;
             }
             catch (Exception)
@@ -127,22 +129,22 @@ namespace GameModel
             }
         }
 
-        public bool CanPlayCard(Game game, PlayCardMessage playCardMessage, IPlayer player)
+        public bool CanPlayCard(IGameState game, PlayCardMessage playCardMessage, IPlayer player)
         {
             if (game.CurrentPlayer.Id != player.Id)
             {
-                throw new BaseDominionException(ExceptionsEnum.NotYourTurn);
+                return false;
             }
 
             if (ActionsCount == 0)
             {
-                throw new BaseDominionException(ExceptionsEnum.DontHaveActions);
+                return false;
             }
 
             var cardInHand = Hand.FirstOrDefault(c => c.CardTypeId == playCardMessage.PlayedCard);
             if (cardInHand == null || cardInHand is not IActionCard actionCard)
             {
-                throw new MissingCardsException(playCardMessage.PlayedCard);
+                return false;
             }
 
             OnPlay.Add(cardInHand);
@@ -200,8 +202,10 @@ namespace GameModel
             Hand.AddRange(cards);
         }
 
-        public void BuyCards(Game game, BuyMessage buyMessage, IPlayer player)
+        public void BuyCards(IGameState game, BuyMessage buyMessage, IPlayer player)
         {
+            CalculateTotalMoney();
+
             if (game.CurrentPlayer.Id != player.Id)
             {
                 throw new BaseDominionException(ExceptionsEnum.NotYourTurn);
@@ -234,7 +238,8 @@ namespace GameModel
             foreach (var item in treasureCards)
             {
                 requiredMoney -= item.Money;
-                DiscardFromHand(DiscardType.AllToPublic, item.CardTypeId);
+                Hand.Remove(item);
+                PublicDiscard.Add(item);
 
                 if (requiredMoney <= 0)
                 {
@@ -248,6 +253,8 @@ namespace GameModel
                 AllCards.Add(card);
                 PublicDiscard.Add(card);
             }
+
+            CalculateTotalMoney();
         }
 
         public bool DiscardFromHand(DiscardType discardType, IEnumerable<CardEnum> cards)
@@ -300,7 +307,7 @@ namespace GameModel
             return true;
         }
 
-        public bool TrashFromHand(Kingdom kingdom, IEnumerable<CardEnum> cards)
+        public bool TrashFromHand(IKingdomState kingdom, IEnumerable<CardEnum> cards)
         {
             if (cards.GroupBy(t => t).Any(group => Hand.Where(c => c.CardTypeId == group.FirstOrDefault()).Count() < group.Count()))
             {
@@ -320,7 +327,7 @@ namespace GameModel
         }
 
 
-        public bool TrashFromHand(Kingdom kingdom, params CardEnum[] cards)
+        public bool TrashFromHand(IKingdomState kingdom, params CardEnum[] cards)
         {
             return TrashFromHand(kingdom, cards as IEnumerable<CardEnum>);
         }
@@ -374,7 +381,8 @@ namespace GameModel
 
         public void EndTurn()
         {
-            DiscardFromHand(DiscardType.AllToPrivate, Hand.Select(c => c.CardTypeId).ToArray());
+            _privateDiscard.AddRange(Hand);
+            Hand.Clear();
 
             _privateDiscard.AddRange(OnPlay);
             OnPlay.Clear();
@@ -384,6 +392,7 @@ namespace GameModel
             BuyCount = 1;
 
             DrawToHand();
+            CalculateTotalMoney();
         }
 
         public void RemoveFromDiscard(ICard card)
@@ -396,6 +405,12 @@ namespace GameModel
             {
                 _privateDiscard.Remove(card);
             }
+        }
+
+        public void CalculateTotalMoney()
+        {
+            TotalMoney = Hand.OfType<ITreasureCard>().Sum(c => c.Money) + AdditionalMoney
+            + (Hand.Any(c => c.CardTypeId == CardEnum.Silver) ? OnPlay.Where(c => c.CardTypeId == CardEnum.Merchant).Count() : 0);
         }
     }
 }

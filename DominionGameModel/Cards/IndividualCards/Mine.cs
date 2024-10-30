@@ -11,13 +11,15 @@ public class MineCard : AbstractActionCard
 
     public override int Cost { get; } = 5;
 
+    public override int ArgsCount { get; } = 2;
+
     public override string Text { get; } = "You may trash a Treasure from your hand. Gain a Treasure to your hand costing up to $3 more than it.";
 
     public override CardEnum CardTypeId { get; } = CardEnum.Mine;
 
     public override List<CardType> Types { get; } = new List<CardType> { CardType.Action };
 
-    protected override async Task Act(Game game, IPlayer player, PlayCardMessage playMessage)
+    protected override async Task Act(IGameState game, IPlayer player, PlayCardMessage playMessage)
     {
         var trashCardType = playMessage.Args[0];
         var getCardType = playMessage.Args[1];
@@ -29,11 +31,11 @@ public class MineCard : AbstractActionCard
         player.State.AddCardsToHand(gottenCard);
     }
 
-    public override bool CanAct(Game game, IPlayer player, PlayCardMessage playMessage)
+    public override bool CanAct(IGameState game, IPlayer player, PlayCardMessage playMessage)
     {
         if (playMessage.Args.Length < 2)
         {
-            throw new BaseDominionException(ExceptionsEnum.MissingArguments);
+            return false;
         }
 
         var trashCardType = playMessage.Args[0];
@@ -41,7 +43,7 @@ public class MineCard : AbstractActionCard
 
         if (game.Kingdom.IsPileEmpty(getCardType))
         {
-            throw new PileIsEmptyException(getCardType);
+            return false;
         }
 
         if (CardEnumDict.GetCard(getCardType).Types.All(t => t != CardType.Treasure)
@@ -49,12 +51,12 @@ public class MineCard : AbstractActionCard
             || (CardEnumDict.GetCard(getCardType).Cost
             > CardEnumDict.GetCard(trashCardType).Cost + 3))
         {
-            throw new ArgumentException($"{trashCardType}, {getCardType}");
+            return false;
         }
 
         if (!player.State.HaveInHand(trashCardType))
         {
-            throw new MissingCardsException(trashCardType);
+            return false;
         }
 
         return true;

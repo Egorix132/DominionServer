@@ -12,7 +12,7 @@ public class WitchCard : AbstractActionCard
 
     public override List<CardType> Types { get; } = new List<CardType> { CardType.Action, CardType.Attack };
 
-    protected override async Task Act(Game game, IPlayer player, PlayCardMessage playMessage)
+    protected override async Task Act(IGameState game, IPlayer player, PlayCardMessage playMessage)
     {
         player.State.DrawToHand(2);
 

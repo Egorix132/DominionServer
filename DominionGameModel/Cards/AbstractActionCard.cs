@@ -2,7 +2,9 @@
 {
     public abstract class AbstractActionCard : AbstractCard, IActionCard
     {
-        public async Task<bool> TryAct(Game game, IPlayer player, PlayCardMessage playMessage)
+        public virtual int ArgsCount => 0;
+
+        public async Task<bool> TryAct(IGameState game, IPlayer player, PlayCardMessage playMessage)
         {
             if (!CanAct(game, player, playMessage))
             {
@@ -14,9 +16,9 @@
             return true;
         }
 
-        protected abstract Task Act(Game game, IPlayer player, PlayCardMessage playMessage);
+        protected abstract Task Act(IGameState game, IPlayer player, PlayCardMessage playMessage);
 
-        public virtual bool CanAct(Game game, IPlayer player, PlayCardMessage playMessage)
+        public virtual bool CanAct(IGameState game, IPlayer player, PlayCardMessage playMessage)
         {
             return true;
         }

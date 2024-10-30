@@ -14,18 +14,18 @@ public class MoneylenderCard : AbstractActionCard
 
     public override List<CardType> Types { get; } = new List<CardType> { CardType.Action };
 
-    protected override async Task Act(Game game, IPlayer player, PlayCardMessage playMessage)
+    protected override async Task Act(IGameState game, IPlayer player, PlayCardMessage playMessage)
     {
         player.State.TrashFromHand(game.Kingdom, CardEnum.Copper);
 
         player.State.AdditionalMoney += 3;
     }
 
-    public override bool CanAct(Game game, IPlayer player, PlayCardMessage playMessage)
+    public override bool CanAct(IGameState game, IPlayer player, PlayCardMessage playMessage)
     {
         if (!player.State.HaveInHand(CardEnum.Copper))
         {
-            throw new MissingCardsException(CardEnum.Copper);
+            return false;
         }
         return true;
     }

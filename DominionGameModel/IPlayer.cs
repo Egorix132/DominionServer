@@ -1,6 +1,4 @@
-﻿using GameModel.Cards;
-
-namespace GameModel
+﻿namespace GameModel
 {
     public interface IPlayer
     {
@@ -10,7 +8,7 @@ namespace GameModel
 
         PlayerState State { get; }
 
-        Task PlayTurnAsync(Game game);
+        Task PlayTurnAsync(IGameState game);
 
         Task<ClarificationResponseMessage> ClarifyPlay(ClarificationRequestMessage request);
 

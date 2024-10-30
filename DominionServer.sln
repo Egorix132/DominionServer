@@ -5,15 +5,17 @@ VisualStudioVersion = 17.6.33712.159
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameModel", "DominionGameModel\GameModel.csproj", "{08C3F809-1BE1-4618-8B39-97640C60C8DC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dominion.SocketIoServer", "SocketIOServer\Dominion.SocketIoServer.csproj", "{EF2872DB-4DEB-48C5-9921-68792C0D7341}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dominion.SocketIoServer", "SocketIOServer\Dominion.SocketIoServer.csproj", "{EF2872DB-4DEB-48C5-9921-68792C0D7341}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dominion.ConsoleClient", "Dominion.ConsoleClient\Dominion.ConsoleClient.csproj", "{36FF2FA1-B164-4E86-8663-DB22DC411DE9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dominion.ConsoleClient", "Dominion.ConsoleClient\Dominion.ConsoleClient.csproj", "{36FF2FA1-B164-4E86-8663-DB22DC411DE9}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SocketIOSharp", "SocketIOSharp\SocketIOSharp.csproj", "{0B6B04EE-B02E-468F-B275-0E16ED12AB32}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EngineIOSharp", "EngineIOSharp\EngineIOSharp.csproj", "{208589E1-BB57-4247-BBEC-9D8581C24574}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EmitterSharp", "EmitterSharp\EmitterSharp.csproj", "{90DCD680-13EB-40F0-8AC8-90CF6981731A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EvoClient", "EvoClient\EvoClient.csproj", "{731524D4-7D8F-47FA-8A57-D7BBB799D3DC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -45,6 +47,10 @@ Global
 		{90DCD680-13EB-40F0-8AC8-90CF6981731A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{90DCD680-13EB-40F0-8AC8-90CF6981731A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{90DCD680-13EB-40F0-8AC8-90CF6981731A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{731524D4-7D8F-47FA-8A57-D7BBB799D3DC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{731524D4-7D8F-47FA-8A57-D7BBB799D3DC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{731524D4-7D8F-47FA-8A57-D7BBB799D3DC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{731524D4-7D8F-47FA-8A57-D7BBB799D3DC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

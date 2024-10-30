@@ -28,11 +28,11 @@ namespace Dominion.SocketIoServer
 
         private TaskCompletionSource TurnTask { get; set; }
 
-        public async Task PlayTurnAsync(Game game)
+        public async Task PlayTurnAsync(IGameState game)
         {
             try
             {
-                Game = game;
+                Game = game as Game;
                 TurnTask = new TaskCompletionSource();
                 Subscribe();
 

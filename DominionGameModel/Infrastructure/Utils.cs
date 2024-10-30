@@ -14,7 +14,7 @@ namespace EvoClient.Utils
         }
     }
 
-    static class CardEnumDict
+    public static class CardEnumDict
     {
         public static Dictionary<CardEnum, ICard> Cards;
         static CardEnumDict()

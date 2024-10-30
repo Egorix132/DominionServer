@@ -1,7 +1,4 @@
-﻿using GameModel.Infrastructure.Attributes;
-using GameModel.Infrastructure.Exceptions;
-using GameModel.Infrastructure;
-using EvoClient.Utils;
+﻿using EvoClient.Utils;
 
 namespace GameModel.Cards.IndividualCards;
 
@@ -11,13 +8,15 @@ public class WorkshopCard : AbstractActionCard
 
     public override int Cost { get; } = 4;
 
+    public override int ArgsCount { get; } = 1;
+
     public override string Text { get; } = "Gain a card costing up to $4.";
 
     public override CardEnum CardTypeId { get; } = CardEnum.Workshop;
 
     public override List<CardType> Types { get; } = new List<CardType> { CardType.Action };
 
-    protected override async Task Act(Game game, IPlayer player, PlayCardMessage playMessage)
+    protected override async Task Act(IGameState game, IPlayer player, PlayCardMessage playMessage)
     {
         var getCardType = playMessage.Args[0];
 
@@ -26,24 +25,24 @@ public class WorkshopCard : AbstractActionCard
         player.State.AddCardsToDiscard(gottenCard);
     }
 
-    public override bool CanAct(Game game, IPlayer player, PlayCardMessage playMessage)
+    public override bool CanAct(IGameState game, IPlayer player, PlayCardMessage playMessage)
     {
         if (playMessage.Args.Length < 1)
         {
-            throw new BaseDominionException(ExceptionsEnum.MissingArguments);
+            return false;
         }
 
         var getCardType = playMessage.Args[0];
 
         if (game.Kingdom.IsPileEmpty(getCardType))
         {
-            throw new PileIsEmptyException(getCardType);
+            return false;
         }
 
         var getCardCost = CardEnumDict.GetCard(getCardType).Cost;
         if (getCardCost > 4)
         {
-            throw new NotEnoughMoneyException(getCardCost, 5);
+            return false;
         }
 
         return true;

@@ -8,13 +8,15 @@ public class ThroneRoomCard : AbstractActionCard
 
     public override int Cost { get; } = 4;
 
+    public override int ArgsCount { get; } = 1;
+
     public override string Text { get; } = "You may play an Action card from your hand twice.";
 
     public override CardEnum CardTypeId { get; } = CardEnum.ThroneRoom;
 
     public override List<CardType> Types { get; } = new List<CardType> { CardType.Action };
 
-    protected override async Task Act(Game game, IPlayer player, PlayCardMessage playMessage)
+    protected override async Task Act(IGameState game, IPlayer player, PlayCardMessage playMessage)
     {
         var doubledCardType = playMessage.Args.FirstOrDefault();
         var doubledCard = player.State.Hand.FirstOrDefault(c => c.CardTypeId == doubledCardType);
@@ -38,12 +40,12 @@ public class ThroneRoomCard : AbstractActionCard
             new PlayCardMessage (doubledCardType, clarification.Args));
     }
 
-    public override bool CanAct(Game game, IPlayer player, PlayCardMessage playMessage)
+    public override bool CanAct(IGameState game, IPlayer player, PlayCardMessage playMessage)
     {
         var doubledCardType = playMessage.Args.FirstOrDefault();
         if (playMessage.Args.Length < 1 || !player.State.HaveInHand(doubledCardType))
         {
-            throw new MissingCardsException(doubledCardType);
+            return false;
         }
         return true;
     }

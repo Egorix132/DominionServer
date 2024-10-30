@@ -4,7 +4,7 @@ public class SilverCard : AbstractCard, ITreasureCard
 {
     public override string Name { get; } = "Silver";
 
-    public override int Cost { get; } = 0;
+    public override int Cost { get; } = 3;
 
     public int Money { get; } = 2;
 

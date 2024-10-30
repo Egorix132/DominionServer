@@ -14,7 +14,7 @@ public class PoacherCard : AbstractActionCard
 
     public override List<CardType> Types { get; } = new List<CardType> { CardType.Action };
 
-    protected override async Task Act(Game game, IPlayer player, PlayCardMessage playMessage)
+    protected override async Task Act(IGameState game, IPlayer player, PlayCardMessage playMessage)
     {
         var drawedCard = player.State.DrawToHand(1);
         try
@@ -29,6 +29,14 @@ public class PoacherCard : AbstractActionCard
                 return;
             }
 
+            if(emptyPilesCount >= player.State.Hand.Count)
+            {
+                player.State.DiscardFromHand(DiscardType.LastToPublic, player.State.Hand.Select(c => c.CardTypeId));
+                player.State.ActionsCount++;
+                player.State.AdditionalMoney++;
+                return;
+            }
+
             var clarification = await player.ClarifyPlay(
                 new ClarificationRequestMessage()
                 {
@@ -36,12 +44,13 @@ public class PoacherCard : AbstractActionCard
                     Args = player.State.Hand.Select(c => c.CardTypeId).ToArray()
                 });
 
-            if (clarification.Args.Length < emptyPilesCount
-                && emptyPilesCount <= player.State.Hand.Count)
+            var discardCards = clarification.Args.Take(emptyPilesCount);
+
+            if (clarification.Args.Length < emptyPilesCount)
             {
                 throw new BaseDominionException(ExceptionsEnum.MissingArguments);
             }
-            if (!player.State.DiscardFromHand(DiscardType.LastToPublic, clarification.Args))
+            if (!player.State.DiscardFromHand(DiscardType.LastToPublic, discardCards))
             {
                 throw new MissingCardsException(clarification.Args
                     .GroupBy(t => t)

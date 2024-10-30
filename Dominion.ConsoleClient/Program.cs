@@ -9,7 +9,7 @@ using SocketIOSharp.Client;
 using SocketIOSharp.Common.Packet;
 using WebSocketSharp;
 
-/*var cards = new Dictionary<int, ICard>();
+var cards = new Dictionary<int, ICard>();
 foreach (var cardEnum in Enum.GetValues<CardEnum>())
 {
     try
@@ -18,7 +18,7 @@ foreach (var cardEnum in Enum.GetValues<CardEnum>())
     }
     catch { }
 }
-var json = JsonConvert.SerializeObject(cards, new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.Auto });*/
+var json = JsonConvert.SerializeObject(cards, new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.Auto });
 
 Console.WriteLine("Input your name!");
 var name = Console.ReadLine();

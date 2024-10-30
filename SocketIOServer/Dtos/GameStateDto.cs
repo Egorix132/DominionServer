@@ -17,7 +17,7 @@ namespace Dominion.SocketIoServer.Dtos
 
         public GameStateDto() { }
 
-        public GameStateDto(Game game, ExceptionsEnum? exceptionType = null)
+        public GameStateDto(IGameState game, ExceptionsEnum? exceptionType = null)
         {
             GameId = game.Id;
             ExceptionType = exceptionType;
@@ -26,6 +26,11 @@ namespace Dominion.SocketIoServer.Dtos
             PlayerState = new CurrentPlayerStateDto(game.CurrentPlayer.State);
             Kingdom = new KingdomDto(game.Kingdom);
             Turn = game.Turn;
+        }
+
+        public void AddLog(IPlayer player, BaseMessage message)
+        {
+            return;
         }
     }
 }

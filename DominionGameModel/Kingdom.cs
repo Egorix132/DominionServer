@@ -2,7 +2,7 @@
 
 namespace GameModel
 {
-    public class Kingdom
+    public class Kingdom : IKingdomState
     {
         public Dictionary<CardEnum, Pile> Piles { get; set; } = new();
         public List<ICard> Trash { get; set; } = new();

@@ -4,29 +4,38 @@ using System.Diagnostics;
 
 namespace GameModel
 {
-    public class Game
+    public class Game : IGameState
     {
         public Guid Id { get; set; }
 
         public List<IPlayer> Players { get; set; } = new();
+        public List<IPlayer> Spectators { get; set; } = new();
 
-        public Kingdom Kingdom { get; set; }
+        public IKingdomState Kingdom { get; set; }
 
         public IPlayer CurrentPlayer { get; private set; }
 
         public int Turn { get; private set; }
         public List<LogEntry> Logs { get; private set; } = new();
 
-        public Game(List<IPlayer> players, Kingdom kingdom)
+        public Game(List<IPlayer> players, Kingdom kingdom, List<IPlayer>? spectators = null)
         {
             Id = Guid.NewGuid();
             Kingdom = kingdom;
-
 
             foreach (var player in players)
             {
                 Players.Add(player);
                 player.State.SetDefaultState();
+            }
+
+            if(spectators != null)
+            {
+                foreach (var spectator in spectators!)
+                {
+                    Spectators.Add(spectator);
+                    spectator.State.SetDefaultState();
+                }
             }
 
             Players.Shuffle();
@@ -48,8 +57,13 @@ namespace GameModel
 
                 try
                 {
-
                     CurrentPlayer = Players[playerTurnCounter % Players.Count];
+                    var spectators = Spectators.Where(s => s.Name == CurrentPlayer.Name);
+
+                    foreach (var spectator in spectators)
+                    {
+                        spectator.PlayTurnAsync(this);
+                    }
                     await CurrentPlayer.PlayTurnAsync(this);
 
                     CurrentPlayer.State.EndTurn();
@@ -154,6 +168,7 @@ namespace GameModel
                 })
                 .ToList();
             gameEndDto.WinnerName = gameEndDto.Players[0].Name;
+            gameEndDto.WinnerVP = gameEndDto.Players[0].VictoryPoints;
 
             return gameEndDto;
         }
@@ -168,6 +183,12 @@ namespace GameModel
                 PlayedCard = message is PlayCardMessage playCardMessage ? playCardMessage.PlayedCard : null,
                 Args = message.Args
             });
+        }
+
+        public void AddSpectator(IPlayer specatator)
+        {
+            Spectators.Add(specatator);
+            specatator.State.SetDefaultState();
         }
     }
 }
