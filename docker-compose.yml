@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  dominion-server:
+    image: socket_io_server_image  # Replace with the actual image name
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    # environment:
+      # Add any environment variables here, e.g.,
+      # - ENV_VARIABLE=value
