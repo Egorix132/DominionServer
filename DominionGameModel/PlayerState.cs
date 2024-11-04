@@ -2,15 +2,15 @@
 using GameModel.Cards;
 using GameModel.Cards.IndividualCards;
 using GameModel.Infrastructure;
-using GameModel.Infrastructure.Attributes;
 using GameModel.Infrastructure.Exceptions;
-using System.Linq;
 using System.Text.Json.Serialization;
 
 namespace GameModel
 {
     public class PlayerState
     {
+        private Shuffler _shuffler;
+
         public int ActionsCount { get; set; } = 1;
         public int BuyCount { get; set; } = 1;
         public int AdditionalMoney { get; set; } = 0;
@@ -33,8 +33,9 @@ namespace GameModel
         [JsonIgnore]
         public List<ICard> Discard => _privateDiscard.Concat(PublicDiscard).ToList();
 
-        public PlayerState()
+        public PlayerState(int? seed = null)
         {
+            _shuffler = new Shuffler(seed);
             SetDefaultState();
         }
 
@@ -57,7 +58,7 @@ namespace GameModel
             };
             AllCards.AddRange(Deck);
 
-            Deck.Shuffle();
+            Deck = _shuffler.Shuffle(Deck).ToList();
 
             DrawToHand();
             CalculateTotalMoney();
@@ -75,7 +76,7 @@ namespace GameModel
                         break;
                     }
                     Deck.AddRange(Discard);
-                    Deck.Shuffle();
+                    Deck = _shuffler.Shuffle(Deck).ToList();
                     _privateDiscard.Clear();
                     PublicDiscard.Clear();
                 }
@@ -118,6 +119,10 @@ namespace GameModel
             try
             {
                 var isPlayed = await actionCard.TryAct(game, player, playCardMessage);
+                if (!isPlayed)
+                {
+                    throw new MissingCardsException();
+                }
                 CalculateTotalMoney();
                 ActionsCount--;
             }
@@ -211,7 +216,7 @@ namespace GameModel
                 throw new BaseDominionException(ExceptionsEnum.NotYourTurn);
             }
 
-            if (BuyCount < buyMessage.Args.Length)
+            if (BuyCount < buyMessage.Args.Count)
             {
                 throw new BaseDominionException(ExceptionsEnum.DontHaveBuy);
             }
@@ -228,7 +233,7 @@ namespace GameModel
             }
             var requiredMoney = buyMessage.Args.Sum(t => CardEnumDict.GetCard(t).Cost);
             var treasureCards = new List<ITreasureCard>(Hand.OfType<ITreasureCard>());
-            
+
             if (requiredMoney > TotalMoney)
             {
                 throw new NotEnoughMoneyException(requiredMoney, TotalMoney);
@@ -348,7 +353,7 @@ namespace GameModel
 
         public bool MoveOnDeck(ICard? card)
         {
-            if(card == null)
+            if (card == null)
             {
                 return false;
             }
@@ -397,7 +402,7 @@ namespace GameModel
 
         public void RemoveFromDiscard(ICard card)
         {
-            if(PublicDiscard.Contains(card))
+            if (PublicDiscard.Contains(card))
             {
                 PublicDiscard.Remove(card);
             }

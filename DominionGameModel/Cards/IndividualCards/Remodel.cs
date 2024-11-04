@@ -1,7 +1,4 @@
 ﻿using EvoClient.Utils;
-using GameModel.Infrastructure;
-using GameModel.Infrastructure.Attributes;
-using GameModel.Infrastructure.Exceptions;
 
 namespace GameModel.Cards.IndividualCards;
 
@@ -11,7 +8,7 @@ public class RemodelCard : AbstractActionCard
 
     public override int Cost { get; } = 4;
 
-    public override int ArgsCount { get; } = 2;
+    public override ActionArg[] ArgTypes { get; } = new[] { new ActionArg(ActionArgSourceType.FromHand), new ActionArg(), };
 
     public override string Text { get; } = "Trash a card from your hand.\r\nGain a card costing up to $2 more than it.";
 

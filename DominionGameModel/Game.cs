@@ -68,6 +68,13 @@ namespace GameModel
 
                     CurrentPlayer.State.EndTurn();
 
+                    foreach (var spectator in spectators)
+                    {
+                        spectator.UpdateState(this);
+                    }
+
+                    CurrentPlayer.UpdateState(this);
+
                 }
                 catch (Exception e)
                 {
@@ -113,6 +120,8 @@ namespace GameModel
 
                     CurrentPlayer.State.EndTurn();
 
+                    CurrentPlayer.UpdateState(this);
+
                 }
                 catch (BaseDominionException e)
                 {
@@ -142,6 +151,10 @@ namespace GameModel
             foreach (var player in Players)
             {
                 player.GameEnded(gameResult);
+            }
+            foreach (var spectator in Spectators)
+            {
+                spectator.GameEnded(gameResult);
             }
         }
 
@@ -175,6 +188,15 @@ namespace GameModel
 
         public void AddLog(IPlayer player, BaseMessage message)
         {
+            if(message is PlayCardMessage)
+            {
+                var spectators = Spectators.Where(s => s.Name == CurrentPlayer.Name);
+
+                foreach (var spectator in spectators)
+                {
+                    spectator.UpdateState(this);
+                }
+            }
             Logs.Add(new LogEntry()
             {
                 Turn = Turn,

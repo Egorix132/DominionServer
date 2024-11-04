@@ -52,6 +52,11 @@ internal class MoneyBot : IPlayer
     {
         return;
     }
+
+    public void UpdateState(IGameState game)
+    {
+        return;
+    }
 }
 
 

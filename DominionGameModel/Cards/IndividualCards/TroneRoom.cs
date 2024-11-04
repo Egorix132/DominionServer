@@ -8,7 +8,7 @@ public class ThroneRoomCard : AbstractActionCard
 
     public override int Cost { get; } = 4;
 
-    public override int ArgsCount { get; } = 1;
+    public override ActionArg[] ArgTypes { get; } = new[] { new ActionArg(ActionArgSourceType.FromHand), };
 
     public override string Text { get; } = "You may play an Action card from your hand twice.";
 
@@ -43,7 +43,7 @@ public class ThroneRoomCard : AbstractActionCard
     public override bool CanAct(IGameState game, IPlayer player, PlayCardMessage playMessage)
     {
         var doubledCardType = playMessage.Args.FirstOrDefault();
-        if (playMessage.Args.Length < 1 || !player.State.HaveInHand(doubledCardType))
+        if (playMessage.Args.Count < 1 || !player.State.HaveInHand(doubledCardType))
         {
             return false;
         }

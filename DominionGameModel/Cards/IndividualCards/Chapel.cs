@@ -6,7 +6,11 @@ public class ChapelCard : AbstractActionCard
 
     public override int Cost { get; } = 2;
 
-    public override int ArgsCount { get; } = 4;
+    public override ActionArg[] ArgTypes { get; } = new[] {
+        new ActionArg(ActionArgSourceType.FromHand, true),
+        new ActionArg(ActionArgSourceType.FromHand, true),
+        new ActionArg(ActionArgSourceType.FromHand, true),
+        new ActionArg(ActionArgSourceType.FromHand, true) };
 
     public override string Text { get; } = "Trash up to 4 cards from your hand.";
 

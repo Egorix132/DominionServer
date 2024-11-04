@@ -2,7 +2,8 @@
 {
     public abstract class AbstractActionCard : AbstractCard, IActionCard
     {
-        public virtual int ArgsCount => 0;
+        public virtual ActionArg[] ArgTypes { get; } = Array.Empty<ActionArg>();
+        public virtual ActionArg[] ClarifyArgTypes { get; } = Array.Empty<ActionArg>();
 
         public async Task<bool> TryAct(IGameState game, IPlayer player, PlayCardMessage playMessage)
         {

@@ -1,7 +1,4 @@
 ﻿using EvoClient.Utils;
-using GameModel.Infrastructure;
-using GameModel.Infrastructure.Attributes;
-using GameModel.Infrastructure.Exceptions;
 
 namespace GameModel.Cards.IndividualCards;
 
@@ -11,7 +8,7 @@ public class MineCard : AbstractActionCard
 
     public override int Cost { get; } = 5;
 
-    public override int ArgsCount { get; } = 2;
+    public override ActionArg[] ArgTypes { get; } = new[] { new ActionArg(ActionArgSourceType.FromHand), new ActionArg(), };
 
     public override string Text { get; } = "You may trash a Treasure from your hand. Gain a Treasure to your hand costing up to $3 more than it.";
 
@@ -33,7 +30,7 @@ public class MineCard : AbstractActionCard
 
     public override bool CanAct(IGameState game, IPlayer player, PlayCardMessage playMessage)
     {
-        if (playMessage.Args.Length < 2)
+        if (playMessage.Args.Count < 2)
         {
             return false;
         }

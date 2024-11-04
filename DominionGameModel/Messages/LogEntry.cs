@@ -12,6 +12,6 @@ public class LogEntry
 
     public MessageType MessageType { get; set; }
 
-    public CardEnum[] Args { get; set; } = Array.Empty<CardEnum>();
+    public IList<CardEnum> Args { get; set; } = Array.Empty<CardEnum>();
 }
 

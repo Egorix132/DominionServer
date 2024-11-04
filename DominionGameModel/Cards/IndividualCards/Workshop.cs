@@ -6,9 +6,9 @@ public class WorkshopCard : AbstractActionCard
 {
     public override string Name { get; } = "Workshop";
 
-    public override int Cost { get; } = 4;
+    public override int Cost { get; } = 3;
 
-    public override int ArgsCount { get; } = 1;
+    public override ActionArg[] ArgTypes { get; } = new[] { new ActionArg(ActionArgSourceType.FromHand), new ActionArg(), };
 
     public override string Text { get; } = "Gain a card costing up to $4.";
 
@@ -27,7 +27,7 @@ public class WorkshopCard : AbstractActionCard
 
     public override bool CanAct(IGameState game, IPlayer player, PlayCardMessage playMessage)
     {
-        if (playMessage.Args.Length < 1)
+        if (playMessage.Args.Count < 1)
         {
             return false;
         }

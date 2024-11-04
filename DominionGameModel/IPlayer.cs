@@ -10,6 +10,8 @@
 
         Task PlayTurnAsync(IGameState game);
 
+        void UpdateState(IGameState game);
+
         Task<ClarificationResponseMessage> ClarifyPlay(ClarificationRequestMessage request);
 
         void GameEnded(GameEndDto gameEndDto);

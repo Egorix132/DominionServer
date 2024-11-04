@@ -8,6 +8,11 @@ public class PoacherCard : AbstractActionCard
 
     public override int Cost { get; } = 4;
 
+    public override ActionArg[] ClarifyArgTypes { get; } = new[] {
+        new ActionArg(ActionArgSourceType.FromHand, true),
+        new ActionArg(ActionArgSourceType.FromHand, true),
+        new ActionArg(ActionArgSourceType.FromHand, true) };
+
     public override string Text { get; } = "+1 Card\r\n+1 Action\r\n+$1\r\nDiscard a card per empty Supply pile.";
 
     public override CardEnum CardTypeId { get; } = CardEnum.Poacher;
@@ -29,7 +34,7 @@ public class PoacherCard : AbstractActionCard
                 return;
             }
 
-            if(emptyPilesCount >= player.State.Hand.Count)
+            if (emptyPilesCount >= player.State.Hand.Count)
             {
                 player.State.DiscardFromHand(DiscardType.LastToPublic, player.State.Hand.Select(c => c.CardTypeId));
                 player.State.ActionsCount++;

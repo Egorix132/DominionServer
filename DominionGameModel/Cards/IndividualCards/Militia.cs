@@ -6,6 +6,11 @@ public class MilitiaCard : AbstractActionCard
 
     public override int Cost { get; } = 4;
 
+    public override ActionArg[] ClarifyArgTypes { get; } = new[] {
+        new ActionArg(ActionArgSourceType.FromHand, true),
+        new ActionArg(ActionArgSourceType.FromHand, true),
+        new ActionArg(ActionArgSourceType.FromHand, true) };
+
     public override string Text { get; } = "+$2\r\nEach other player discards down to 3 cards in hand.";
 
     public override CardEnum CardTypeId { get; } = CardEnum.Militia;
@@ -28,14 +33,14 @@ public class MilitiaCard : AbstractActionCard
                 continue;
             }
             
-            var clarification = await player.ClarifyPlay(
+            var clarification = await gamePlayer.ClarifyPlay(
                 new ClarificationRequestMessage()
                 {
                     PlayedCard = playMessage.PlayedCard,
-                    Args = player.State.Hand.Select(c => c.CardTypeId).ToArray()
+                    Args = gamePlayer.State.Hand.Select(c => c.CardTypeId).ToArray()
                 });
 
-            var handSize = player.State.Hand.Count;
+            var handSize = gamePlayer.State.Hand.Count;
             IEnumerable<CardEnum> cardsToDiscard;
             try
             {
@@ -43,14 +48,13 @@ public class MilitiaCard : AbstractActionCard
             }
             catch
             {
-                cardsToDiscard = player.State.Hand.Take(handSize - 3).Select(c => c.CardTypeId);
+                cardsToDiscard = gamePlayer.State.Hand.Take(handSize - 3).Select(c => c.CardTypeId);
             }
 
             if (cardsToDiscard.Count() < handSize - 3
-                || !player.State.HaveInHand(cardsToDiscard))
+                || !gamePlayer.State.HaveInHand(cardsToDiscard))
             {
-                cardsToDiscard = player.State.Hand.Take(handSize - 3).Select(c => c.CardTypeId).ToList();
-                return;
+                cardsToDiscard = gamePlayer.State.Hand.Take(handSize - 3).Select(c => c.CardTypeId).ToList();
             }
 
             gamePlayer.State.DiscardFromHand(DiscardType.LastToPublic, cardsToDiscard);

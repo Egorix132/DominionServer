@@ -1,14 +1,11 @@
-﻿using GameModel.Infrastructure;
-using GameModel.Infrastructure.Attributes;
-using GameModel.Infrastructure.Exceptions;
-
-namespace GameModel.Cards.IndividualCards;
+﻿namespace GameModel.Cards.IndividualCards;
 
 public class LibraryCard : AbstractActionCard
 {
     public override string Name { get; } = "Library";
 
     public override int Cost { get; } = 5;
+    public override ActionArg[] ClarifyArgTypes { get; } = new[] { new ActionArg(true) };
 
     public override string Text { get; } = "Draw until you have 7 cards in hand, skipping any Action cards you choose to; set those aside, discarding them afterwards.";
 
@@ -24,7 +21,7 @@ public class LibraryCard : AbstractActionCard
         {
             var drawedCard = player.State.Draw(1).FirstOrDefault();
 
-            if(drawedCard == null)
+            if (drawedCard == null)
             {
                 return;
             }

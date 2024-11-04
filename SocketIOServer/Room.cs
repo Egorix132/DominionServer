@@ -66,8 +66,8 @@ internal class Room
                         Players,
                         new Kingdom(
                             new List<CardEnum> {
-                                CardEnum.Artisan, CardEnum.Cellar, CardEnum.Market, CardEnum.Merchant, CardEnum.Mine,
-                                CardEnum.Moat, CardEnum.Moneylender, CardEnum.Poacher, CardEnum.Remodel, CardEnum.Witch
+                                CardEnum.Cellar, CardEnum.Artisan, CardEnum.Merchant, CardEnum.Market, CardEnum.Mine,
+                                CardEnum.Moat, CardEnum.Remodel, CardEnum.Poacher, CardEnum.Moneylender, CardEnum.Witch
                             },
                             Players.Count
                         ),

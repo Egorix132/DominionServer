@@ -1,5 +1,6 @@
 ﻿using EvoClient.Utils;
 using GameModel.Cards;
+using System.Collections.ObjectModel;
 
 namespace EvoClient.Evo;
 
@@ -22,13 +23,13 @@ public class StrategyGenome
 
     public const int KingdomActionPilesCount = 10;
 
-    public const string GenomeVersion = "0.3";
+    public const string GenomeVersion = "0.7";
 
     public const int FirstBuySize = 4;
 
     public static int IntSize = FirstBuySize + PurchasePhasesCount * PurchasePhaseLength + PlayPhasesCount * GenomePlayPhase.intSize;
 
-    public const int MutatePercent = 2;
+    public const int MutatePercent = 1;
 
     public static float MutateGensCountDefault = IntSize * (MutatePercent / 100f);
 
@@ -36,13 +37,13 @@ public class StrategyGenome
 
     public string Name;
 
-    public const int GameTurnLength = 30;
+    public const int GameLength = 20;
 
-    public const int PurchasePhasesCount = 3;
-    public const int PurchasePhaseLength = GameTurnLength / PurchasePhasesCount + 2;
+    public const int PurchasePhasesCount = 4;
+    public const int PurchasePhaseLength = GameLength / PurchasePhasesCount + 2;
 
-    public const int PlayPhasesCount = 2;
-    public const int PlayPhaseLength = GameTurnLength / PlayPhasesCount;
+    public const int PlayPhasesCount = 3;
+    public const int PlayPhaseLength = GameLength / PlayPhasesCount;
 
 
     public CardEnum[][] PurchasePhases { get; set; } = new CardEnum[1 + PurchasePhasesCount][];
@@ -91,15 +92,15 @@ public class StrategyGenome
 
             pointer += GenomePlayPhase.PlayOrderCount;
 
-            for (int j = 0; j < KingdomActionPilesCount; j++)
+            for (int j = 0; j < playPhase.CardsArguments.Count; j++)
             {
-                var key = KingdomActionPiles[j];
+                var el = playPhase.CardsArguments.ElementAt(j);
 
-                var argsCount = (CardEnumDict.GetCard(key) as IActionCard)!.ArgsCount;
+                var argsCount = el.Value.Length;
 
                 for (int k = 0; k < argsCount; k++)
                 {
-                    result[pointer + k] = playPhase.CardsArguments[key][k];
+                    result[pointer + k] = playPhase.CardsArguments[el.Key][k];
                 }
 
                 pointer += argsCount;
@@ -127,9 +128,11 @@ public class StrategyGenome
 
         for (int i = 0; i < PurchasePhasesCount + 1; i++)
         {
-            var purchasePhase = new CardEnum[PurchasePhaseLength];
+            CardEnum[] purchasePhase;
             if (i == 0)
             {
+                purchasePhase = new CardEnum[4];
+
                 purchasePhase[0] = ints[0];
                 purchasePhase[1] = ints[1];
                 purchasePhase[2] = ints[2];
@@ -139,6 +142,8 @@ public class StrategyGenome
                 strategy.PurchasePhases[i] = purchasePhase;
                 continue;
             }
+
+            purchasePhase = new CardEnum[PurchasePhaseLength];
 
             for (int j = 0; j < PurchasePhaseLength; j++)
             {
@@ -159,15 +164,15 @@ public class StrategyGenome
 
             pointer += GenomePlayPhase.PlayOrderCount;
 
-            for (int j = 0; j < KingdomActionPilesCount; j++)
+            for (int j = 0; j < playPhase.CardsArguments.Count; j++)
             {
-                var key = KingdomActionPiles[j];
+                var el = playPhase.CardsArguments.ElementAt(j);
 
-                var argsCount = (CardEnumDict.GetCard(key) as IActionCard)!.ArgsCount;
+                var argsCount = el.Value.Length;
 
                 for (int k = 0; k < argsCount; k++)
                 {
-                    playPhase.CardsArguments[key][k] = ints[pointer + k];
+                    playPhase.CardsArguments[el.Key][k] = ints[pointer + k];
                 }
 
                 pointer += argsCount;
@@ -185,9 +190,11 @@ public class StrategyGenome
 
         for (int i = 0; i < PurchasePhasesCount + 1; i++)
         {
-            var purchasePhase = new CardEnum[PurchasePhaseLength];
+            CardEnum[] purchasePhase;
             if (i == 0)
             {
+                purchasePhase = new CardEnum[4];
+
                 purchasePhase[0] = AllCardEnum.GetRandom();
                 purchasePhase[1] = AllCardEnum.GetRandom();
                 purchasePhase[2] = AllCardEnum.GetRandom();
@@ -196,6 +203,7 @@ public class StrategyGenome
                 strategy.PurchasePhases[i] = purchasePhase;
                 continue;
             }
+            purchasePhase = new CardEnum[PurchasePhaseLength];
 
             for (int j = 0; j < PurchasePhaseLength; j++)
             {
@@ -213,15 +221,15 @@ public class StrategyGenome
                 playPhase.PlayOrder[j] = KingdomActionPiles.GetRandom();
             }
 
-            for (int j = 0; j < KingdomActionPilesCount; j++)
+            for (int j = 0; j < playPhase.CardsArguments.Count; j++)
             {
-                var key = KingdomActionPiles[j];
+                var el = playPhase.CardsArguments.ElementAt(j);
 
-                var argsCount = (CardEnumDict.GetCard(key) as IActionCard)!.ArgsCount;
+                var argsCount = el.Value.Length;
 
                 for (int k = 0; k < argsCount; k++)
                 {
-                    playPhase.CardsArguments[key][k] = AllCardEnum.GetRandom();
+                    playPhase.CardsArguments[el.Key][k] = AllCardEnum.GetRandom();
                 }
             }
             strategy.PlayPhases[i] = playPhase;
@@ -237,9 +245,11 @@ public class StrategyGenome
 
         for (int i = 0; i < PurchasePhases.Length; i++)
         {
-            var newPurchasePhase = new CardEnum[PurchasePhaseLength];
+            CardEnum[] newPurchasePhase;
             if (i == 0)
             {
+                newPurchasePhase = new CardEnum[PurchasePhaseLength];
+
                 newPurchasePhase[0] = MutateGen(PurchasePhases[i][0], false, 3);
                 newPurchasePhase[1] = MutateGen(PurchasePhases[i][1], false, 3);
                 newPurchasePhase[2] = MutateGen(PurchasePhases[i][2], false, 3);
@@ -248,6 +258,7 @@ public class StrategyGenome
                 strategy.PurchasePhases[i] = newPurchasePhase;
                 continue;
             }
+            newPurchasePhase = new CardEnum[PurchasePhaseLength];
 
             for (int j = 0; j < PurchasePhaseLength; j++)
             {
@@ -267,15 +278,15 @@ public class StrategyGenome
                 newPlayPhase.PlayOrder[j] = MutateGen(oldPlayPhase.PlayOrder[j], true);
             }
 
-            for (int j = 0; j < KingdomActionPilesCount; j++)
+            for (int j = 0; j < newPlayPhase.CardsArguments.Count; j++)
             {
-                var key = KingdomActionPiles[j];
+                var el = oldPlayPhase.CardsArguments.ElementAt(j);
 
-                var argsCount = (CardEnumDict.GetCard(key) as IActionCard)!.ArgsCount;
+                var argsCount = el.Value.Length;
 
                 for (int k = 0; k < argsCount; k++)
                 {
-                    newPlayPhase.CardsArguments[key][k] = MutateGen(oldPlayPhase.CardsArguments[key][k]);
+                    newPlayPhase.CardsArguments[el.Key][k] = MutateGen(oldPlayPhase.CardsArguments[el.Key][k]);
                 }
             }
 
@@ -312,10 +323,11 @@ public class StrategyGenome
 
         for (int i = 0; i < PurchasePhasesCount + 1; i++)
         {
-            var purchasePhase = new CardEnum[PurchasePhaseLength];
+            CardEnum[] purchasePhase;
             if (i == 0)
             {
                 Console.WriteLine($"Input 4 cards to buy on {i} turn");
+                purchasePhase = new CardEnum[4];
 
                 purchasePhase[0] = AskFromConsole();
                 purchasePhase[1] = AskFromConsole();
@@ -325,6 +337,7 @@ public class StrategyGenome
                 strategy.PurchasePhases[i] = purchasePhase;
                 continue;
             }
+            purchasePhase = new CardEnum[PurchasePhaseLength];
 
             Console.WriteLine($"Input {PurchasePhaseLength} cards to buy on {i} turn");
 
@@ -339,24 +352,24 @@ public class StrategyGenome
         {
             var playPhase = new GenomePlayPhase();
 
-            Console.WriteLine($"Input 10 action cards to order play on {i} turn");
+            Console.WriteLine($"Input {GenomePlayPhase.PlayOrderCount} action cards to order play on {i} turn");
 
             for (int j = 0; j < GenomePlayPhase.PlayOrderCount; j++)
             {
                 playPhase.PlayOrder[j] = AskFromConsole();
             }
 
-            for (int j = 0; j < KingdomActionPilesCount; j++)
+            for (int j = 0; j < playPhase.CardsArguments.Count; j++)
             {
-                var key = KingdomActionPiles[j];
+                var el = playPhase.CardsArguments.ElementAt(j);
 
-                Console.WriteLine($"Input 5 action cards to pass them to play {key} card on {i} turn");
+                var argsCount = el.Value.Length;
 
-                var argsCount = (CardEnumDict.GetCard(key) as IActionCard)!.ArgsCount;
+                Console.WriteLine($"Input {argsCount} cards to pass them to play {el.Key} card on {i} turn");
 
                 for (int k = 0; k < argsCount; k++)
                 {
-                    playPhase.CardsArguments[key][k] = AskFromConsole();
+                    playPhase.CardsArguments[el.Key][k] = AskFromConsole();
                 }
             }
             strategy.PlayPhases[i] = playPhase;
@@ -387,13 +400,28 @@ public class StrategyGenome
 public class GenomePlayPhase
 {
     public const int PlayOrderCount = 10;
-    public static int TotalCardsArgumentsCount = StrategyGenome.KingdomActionPiles.Select(p =>
-        CardEnumDict.GetCard(p)).OfType<IActionCard>().Sum(c => c.ArgsCount);
 
-    public static int intSize = PlayOrderCount + TotalCardsArgumentsCount;
+    private static readonly IReadOnlyDictionary<CardEnum, CardEnum[]> EmptyCardArguments;
+    public static readonly int TotalCardsArgumentsCount;
+    public static readonly int intSize;
+
+    static GenomePlayPhase()
+    {
+        EmptyCardArguments = new ReadOnlyDictionary<CardEnum, CardEnum[]>(StrategyGenome.KingdomActionPiles.Select(p =>
+            CardEnumDict.GetCard(p)).OfType<IActionCard>().ToDictionary(k => k.CardTypeId, c => new CardEnum[c.ArgTypes.Length * 2]));
+
+        TotalCardsArgumentsCount = EmptyCardArguments.Sum(c => c.Value.Length);
+        intSize = PlayOrderCount + TotalCardsArgumentsCount;
+    }
+
+    public GenomePlayPhase()
+    {
+        CardsArguments = EmptyCardArguments.ToDictionary(entry => entry.Key,
+                                                        entry => (CardEnum[])entry.Value.Clone());
+    }
+
 
     public CardEnum[] PlayOrder { get; set; } = new CardEnum[PlayOrderCount];
 
-    public Dictionary<CardEnum, CardEnum[]> CardsArguments { get; set; } = StrategyGenome.KingdomActionPiles.Select(p =>
-        CardEnumDict.GetCard(p)).OfType<IActionCard>().ToDictionary(k => k.CardTypeId, c => new CardEnum[c.ArgsCount]);
+    public Dictionary<CardEnum, CardEnum[]> CardsArguments { get; set; }
 }

@@ -64,5 +64,10 @@ namespace Dominion.SocketIoServer
         {
             _socket.SendMessage("exception", e.Message);
         }
+
+        public void UpdateState(IGameState game)
+        {
+            _socket.SendMessage("updateState", new GameStateDto(game));
+        }
     }
 }

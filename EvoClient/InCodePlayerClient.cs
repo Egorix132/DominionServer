@@ -1,6 +1,7 @@
 ﻿using Dominion.SocketIoServer.Dtos;
 using DominionClient;
 using GameModel;
+using System.Net.Sockets;
 
 namespace EvoClient;
 
@@ -55,6 +56,11 @@ internal class InCodePlayerClient : IPlayer, IGameSenderClient
     public void BuyCards(BuyMessage message)
     {
         State.BuyCards(_game, message, this);
+    }
+
+    public void UpdateState(IGameState game)
+    {
+        _game = game;
     }
 }
 

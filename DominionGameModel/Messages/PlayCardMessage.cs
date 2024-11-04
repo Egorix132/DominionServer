@@ -12,5 +12,11 @@ public class PlayCardMessage : BaseMessage
         Args = args;
     }
 
+    public PlayCardMessage(CardEnum playedCard, IList<CardEnum> args)
+    {
+        PlayedCard = playedCard;
+        Args = args;
+    }
+
     public CardEnum PlayedCard { get; set; }
 }

@@ -8,7 +8,7 @@ namespace GameModel.Cards.IndividualCards
 
         public override int Cost { get; } = 6;
 
-        public override int ArgsCount { get; } = 2;
+        public override ActionArg[] ArgTypes { get; } = new[] { new ActionArg(), new ActionArg() };
 
         public override string Text { get; } = "Gain a card to your hand costing up to $5.\r\nPut a card from your hand onto your deck.";
 
@@ -34,7 +34,7 @@ namespace GameModel.Cards.IndividualCards
 
         public override bool CanAct(IGameState game, IPlayer player, PlayCardMessage playMessage)
         {
-            if (playMessage.Args.Length < 2)
+            if (playMessage.Args.Count < 2)
             {
                 return false;
             }

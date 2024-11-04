@@ -2,7 +2,8 @@
 {
     public interface IActionCard : ICard
     {
-        public int ArgsCount { get; }
+        public ActionArg[] ArgTypes { get; }
+        public ActionArg[] ClarifyArgTypes { get; }
 
         Task<bool> TryAct(IGameState game, IPlayer player, PlayCardMessage playMessage);
 

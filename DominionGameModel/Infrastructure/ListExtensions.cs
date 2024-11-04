@@ -1,6 +1,6 @@
 ﻿namespace GameModel.Infrastructure
 {
-    public static class IListExtensions
+    public static class ListExtensions
     {
         private static Random _random = new Random();
         /// <summary>

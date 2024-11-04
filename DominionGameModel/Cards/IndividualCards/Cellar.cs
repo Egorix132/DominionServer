@@ -1,6 +1,4 @@
-﻿using GameModel.Infrastructure.Exceptions;
-
-namespace GameModel.Cards.IndividualCards;
+﻿namespace GameModel.Cards.IndividualCards;
 
 public class CellarCard : AbstractActionCard
 {
@@ -8,7 +6,11 @@ public class CellarCard : AbstractActionCard
 
     public override int Cost { get; } = 2;
 
-    public override int ArgsCount { get; } = 4;
+    public override ActionArg[] ArgTypes { get; } = new[] {
+         new ActionArg(ActionArgSourceType.FromHand, true),
+         new ActionArg(ActionArgSourceType.FromHand, true),
+         new ActionArg(ActionArgSourceType.FromHand, true),
+         new ActionArg(ActionArgSourceType.FromHand, true)};
 
     public override string Text { get; } = "+1 Action\r\nDiscard any number of cards, then draw that many.";
 
@@ -20,7 +22,7 @@ public class CellarCard : AbstractActionCard
     {
         player.State.DiscardFromHand(DiscardType.LastToPublic, playMessage.Args);
 
-        player.State.DrawToHand(playMessage.Args.Length);
+        player.State.DrawToHand(playMessage.Args.Count);
 
         player.State.ActionsCount++;
     }

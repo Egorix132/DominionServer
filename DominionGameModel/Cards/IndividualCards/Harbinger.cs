@@ -7,6 +7,7 @@ public class HarbingerCard : AbstractActionCard
     public override string Name { get; } = "Harbinger";
 
     public override int Cost { get; } = 3;
+    public override ActionArg[] ClarifyArgTypes { get; } = new[] { new ActionArg(true) };
 
     public override string Text { get; } = "+1 Card\r\n+1 Action\r\nLook through your discard pile. You may put a card from it onto your deck.";
 
